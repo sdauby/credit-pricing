@@ -7,8 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include_directories(.)
 
-add_executable(main 
-Core/main.cpp
+add_executable(main
 Core/Date.cpp
 Core/Data.cpp
 Models/HazardRateCurve/HazardRateCurve.cpp
@@ -23,4 +22,5 @@ Pricers/S3/FloatingCouponBondPricing.cpp
 Pricers/S3/S3Pricer.cpp
 PricingEngine/PricingConfiguration.cpp
 PricingEngine/PricingEngine.cpp
+main.cpp
 )
