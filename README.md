@@ -150,7 +150,7 @@ Within the Models component, there is no C++-level construct shared by every mod
 `InterestRateCurve` is extremely simplified. 
 Its data consist in just one `double` representing a flat continuously compounded rate. 
 
-`HazardRateCurve` is also extremely simplified, with a single double parameter.
+`HazardRateCurve` is also extremely simplified, with a single `double` parameter.
 It represents the default risk of a certain issuer in a certain currency.
 It has a `hazardRate()` member function, which provides forward hazard rates.
 (Improvement: I think that the implementation of this class is not mathematically correct.)
@@ -193,8 +193,6 @@ The reason for not using a `std::variant` for instruments is that, unlike model 
 are likely to have many data members. This makes a `std::variant` potentially memory-inefficient.
 Having said that, both choices can be revisited.
 
-instances are expected to be small, fast to move objects
-
 (Improvement: `ModelId` has no role in ModelContainer so it would rather belong with Pricers.)
 
 ### 3.4.3 ModelContainer
@@ -230,7 +228,7 @@ The `ModelContainer` is expected to contain models for all the identifiers retur
 
 `S3Pricer` is derived from `Pricer`. 
 It is able to price fixed and floating coupon bonds and credit default swaps.
-It uses the S3 model, i.e. the Schönbucher's "building blocks", to derive instrument prices.
+It uses the S3 model, i.e. Schönbucher's "building blocks", to derive instrument prices.
 
 `S3Pricer` composes `S3UnitPricer`s, each of which is responsible for a single instrument.
 They are created by the `makeS3UnitPricer()` factory function, where we see the `kind()` and `static_cast` pattern
@@ -248,7 +246,7 @@ a single model having the merged tenor structure is created.
 For example, this ensures that a 3Y CDS on JPM in USD and a 5Y CDS on JPM in USD use one S3 model rather
 than two.
 Although this example is a little contrived because of the extreme simplicity of the S3 model, it illustrates
-that grouping instruments priced with the same method (S3, IR) enables performance optimisations, something
+that grouping instruments priced with the same method enables performance optimisations, something
 that would not be possible if the `Pricer` interface were for single instruments rather than collections of
 instruments.
 
