@@ -122,7 +122,7 @@ namespace {
 
 namespace PricingEngine {
 
-    void price(const Portfolio& p, const PricingConfiguration& config)
+    PvResult price(const Portfolio& p, const PricingConfiguration& config)
     {
         const auto pricers = makePricers(p.instruments,config);
 
@@ -133,43 +133,7 @@ namespace PricingEngine {
                 ModelFactory::populate(modelContainer,modelId);
             instrumentPvs.merge(pricer->pvs(modelContainer));
         }
-
-        const auto printRow = [](char fill,
-                                 auto positionId, 
-                                 auto instrumentId,
-                                 auto instrumentKind,
-                                 auto ccy,
-                                 auto pv) {
-            using namespace std;
-            cout << left << setw(10) << setfill(fill) << positionId     << " ";
-            cout << left << setw(12) << setfill(fill) << instrumentId   << " ";
-            cout << left << setw(18) << setfill(fill) << instrumentKind << " ";
-            cout << left << setw(10) << setfill(fill) << ccy            << " ";
-            cout << left << setw(11) << setfill(fill) << pv             << " ";
-            cout << '\n';
-        };
-
-        printRow(' ', "PositionId", "InstrumentId", "InstrumentKind", "PVCurrency", "PV");
-        printRow('-', "", "", "", "", "");
-        for (const auto& [positionId, position] : p.positions) {
-            const auto instrumentId = position.instrument;
-            const auto instrumentKind = name(p.instruments.at(instrumentId)->kind());
-            const auto& pv_ccy = [&instrumentPvs, &instrumentId]() -> 
-                std::optional<std::pair<double,Currency>> {
-                if (const auto i = instrumentPvs.find(instrumentId); i != instrumentPvs.end()) {
-                    return {i->second};
-                } else {
-                    return std::nullopt;
-                }
-            }();
-            if (pv_ccy) {
-                const auto& [instrumentPv,ccy] = *pv_ccy;
-                const auto positionPv = position.notional * instrumentPv;
-                printRow(' ', positionId, instrumentId, instrumentKind, name(ccy), positionPv);
-            } else {
-                printRow(' ', positionId, instrumentId, instrumentKind, "NA", "NA");
-            }
-        }
+        return instrumentPvs;
     }
 
 }

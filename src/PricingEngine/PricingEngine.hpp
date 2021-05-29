@@ -1,8 +1,9 @@
 #pragma once
+#include "Pricers/Pricer.hpp"
 
 struct Portfolio;
 class PricingConfiguration;
 
 namespace PricingEngine {
-    void price(const Portfolio& p, const PricingConfiguration& config);
+    PvResult price(const Portfolio& p, const PricingConfiguration& config);
 }
