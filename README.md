@@ -121,7 +121,7 @@ struct FixedCouponBondData {
 `InstrumentId` and `PositionId` are `unsigned` aliases. (Improvement: make them proper types in the interest of type safety.)
 They identify `Instrument`s and `Position`s in the context of a `Portfolio`.
 
-A `Position` represents a quantity of an instrument identified by its `InstrumentId`.
+A `Position` represents a quantity of an instrument.
 A `Portfolio` consists of a collection of `Instrument`s and a collection of `Position`s.
 The concept of position is useful to represent the situation where several positions refer to the same instrument,
 as may happen in particular for fungible, standardized instruments.
@@ -145,7 +145,7 @@ At the lowest end of the spectrum of model complexity lies the degenerate case o
 
 ### 3.3.2 Implementation
 
-Within the Models component, there is no C++-level construct shared by every model. Each model stands alone.
+Within the Models component, there is no C++-level construct shared by every model.
 
 `InterestRateCurve` is extremely simplified. 
 Its data consist in just one `double` representing a flat continuously compounded rate. 
@@ -156,44 +156,48 @@ It has a `hazardRate()` member function, which provides forward hazard rates.
 (Improvement: I think that the implementation of this class is not mathematically correct.)
 
 `S3Model` is an implementation of the "building blocks for credit derivative pricing" of Philipp J. Schönbucher's
-*Credit Derivatives Pricing Models* book, chapter 3.
+*Credit Derivatives Pricing Models*, chapter 3.
 Its constructor moves a tenor structure of forward rates and hazard rates, as well as a recovery rate, into its member data.
 Its member functions (`T`, `delta`, `B`, `Bbar`, `e`, `pi`, `F`) provide the building blocks in the notations of
 the book.
 
-# 3.4 ModelContainer
+## 3.4 ModelContainer
 
 This component implements a container mapping model identifiers to models.
 
-# 3.4.1 Model identifiers
+### 3.4.1 Model identifiers
 
 The `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId` structs each contain a `ModelType` type alias, equal
 respectively to `InterestRateCurve`, `HazardRateCurve` and `S3Model`.
 In that way, we establish a `ModelIdT` to `ModelT` correspondance for every model type `ModelT`.
 (In the rest of this document, *the `ModelIdT` types* will mean `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId`.)
 
-Each `ModelIdT` type contains data which specify the segment of the financial markets which is
+A `ModelIdT` value contains data which specify the segment of the financial markets which is
 modelled and abstracted by a model (cf 3.3.1).
 For example, `HazardRateCurveId` contains an issuer and a currency. The value
 `HazardRateCurveId{Currency::USD,Issuers::JPM}` identifies the hazard rate curve representing the default risk of issuer
 JP Morgan in USD.
 
-In summary, a value of a `ModelIdT` type uniquely identifies a specific 
-segment of the financial markets (e.g. the USD rates; the USD JPM default risk; the overall USD JPM credit)
-and a model type (via the `ModelT` type alias) adequate for that segment.
-
-# 3.4.2 `ModelId`
+### 3.4.2 `ModelId`
 
 `ModelId` is a `std::variant` whose alternatives are `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId`.
-Therefore, it is an identifier for a model of either of the corresponding types.
+Therefore, it is an identifier for a model of any of the corresponding types.
 
 It is useful, for example, to enable the collection of heterogeneous `ModelIdT` values in a single container.
-In section 4, I compare the `ModelT` / `ModelIdT` type relationship on the one hand, and the `Instrument` / `InstrumentImpl`
-instance relationship on the other hand.
+The `ModelT` / `ModelIdT` type relationship is analogous to the `Instrument` / `InstrumentImpl`
+instance relationship.
+Yet, they are implemented differently.
+The reason is that `std::variant`, being a concrete type, is preferrable to a class hierarchy
+(cf C++ Core Guidelines C.10).
+The reason for not using a `std::variant` for instruments is that, unlike model identifiers, some instrument types
+are likely to have many data members. This makes a `std::variant` potentially memory-inefficient.
+Having said that, both choices can be revisited.
+
+instances are expected to be small, fast to move objects
 
 (Improvement: `ModelId` has no role in ModelContainer so it would rather belong with Pricers.)
 
-# 3.4.3 ModelContainer
+### 3.4.3 ModelContainer
 
 `ModelContainer` contains objects of the `ModelT` types, keyed by values of the `ModelIdT` types.
 It uses `std::unique_ptr` so it assumes sole ownership of the model objects it contains.
@@ -204,21 +208,106 @@ Interestingly, the `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId` ty
 the `InterestRateCurve`, `HazardRateCurve` and `S3Model` types, are completely hidden from `ModelContainer.hpp`:
 * They do not occur in the data members because we use the pImpl idiom.
 * They do not occur in the `get()` and `set()` member functions because they are templates which abstract those types via the template type parameter.
+
 So, we can add concrete model types to `ModelContainer` without recompiling any existing `ModelContainer` client.
+
+The `get()` member function template returns a raw pointer. 
+This is standard for non-owning references which may be null. (Cf C++ Core Guidelines F.60.)
 
 (Improvement: it may be possible to further factorize `ModelContainer.cpp` with a variadic template taking
 all the `ModelIdT` types.)
 
-## 4. Implementation notes
-C++20
-Level of sophistication, abstraction
-Templates, concepts
-Smart pointers, references, raw pointers
-References to Meyers, Stroustrup, Alexandrescu, C++ Core Guidelines
-Why Instruments need static_cast
-Variant (ModelId) vs interface (Instrument)
-Hash map vs ordered map
+## 3.5 Pricers
 
-variant Stroutstrup Tour 13.5.1
+### 3.5.1 Pricer
 
+`Pricer` is an interface for objects which manage the pricing of a collection of instruments.
+The `requiredModels()` pure virtual function returns the identifiers of the model objects required to price the instruments.
+The `pvs()` pure virtual function takes a `ModelContainer` reference and returns a map from `InstrumentId` to (pv,currency) pairs.
+The `ModelContainer` is expected to contain models for all the identifiers returned by `requiredModels()`.
+
+### 3.5.2 S3Pricer
+
+`S3Pricer` is derived from `Pricer`. 
+It is able to price fixed and floating coupon bonds and credit default swaps.
+It uses the S3 model, i.e. the Schönbucher's "building blocks", to derive instrument prices.
+
+`S3Pricer` composes `S3UnitPricer`s, each of which is responsible for a single instrument.
+They are created by the `makeS3UnitPricer()` factory function, where we see the `kind()` and `static_cast` pattern
+mentioned in 3.2.1.
+I prefer this pattern to having a `makeS3UnitPricer()` virtual function on the `Instrument` interface because in the
+high-level architecture (see 2.2) the Instruments belongs to a lower layer than the Pricers layer.
+For example, we may want to build a PaymentProcessing component on top of Instruments, and that component would
+have nothing to do with Pricers.
+So, it would be bad architecture to encumber `Instrument` with pricer-related member functions.
+The approach I have chosen is reminiscent of the Visitor design pattern.
+
+The `aggregateTenorStructures()` function analyses all the `S3ModelId`s required by the `S3UnitPricer`s.
+If two requirements differ only by their required tenor structure, those tenor structures are merged and
+a single model having the merged tenor structure is created.
+For example, this ensures that a 3Y CDS on JPM in USD and a 5Y CDS on JPM in USD use one S3 model rather
+than two.
+Although this example is a little contrived because of the extreme simplicity of the S3 model, it illustrates
+that grouping instruments priced with the same method (S3, IR) enables performance optimisations, something
+that would not be possible if the `Pricer` interface were for single instruments rather than collections of
+instruments.
+
+### 3.5.3 IRPricer
+`IRPricer`is derived from `Pricer`. It is able to price fixed and floating bonds only.
+It uses the InterestRateCurve model.
+
+`IRPricer` is architecturally similar to `S3Pricer`.
+(Improvement: factorise the architectural commonalities of `IRPricer` and `S3Pricer`,
+e.g. define a `UnitPricer` interface and define a `PricerImpl` class template to generate
+`Pricer` derived classes aggregating `UnitPricer`s.)
+
+## 3.6 PricingEngine
+
+`PricingEngine` is a namespace with a single function
+```c++
+PvResult price(const InstrumentMap& instruments, const PricingConfiguration& config);
+```
+which returns instrument prices.
+
+The `PricingConfiguration` class encapsulates the strategy for the selection of the pricer kind (IR or S3) to be applied to a given instrument.
+In the example program, two strategies are applied successively:
+* S3 for all instruments;
+* IR for instruments which support IR, nothing for the other instruments.
+
+`price()` calls `makePricers()`, which groups instruments by pricer kind and instantiates 
+an `IRPricer` and a `S3Pricer` with the ids of the instruments each must price.
+
+It instantiates a `ModelContainer` and calls `ModelFactory::populate()` to
+populate it with all the models required by the pricers.
+This function uses an interesting idiom (`std::visit()` and `overloaded` lambdas,
+cf. Stroustrup, *A Tour of C++*, 13.5.1) to dispatch the model creation
+to the adequate factory function based on the alternative contained in the
+`ModelId` variant.
+
+`ModelFactory` is unfinished work. It is meant to evolve into a mechanism to
+manage the dependencies between models. This can be useful for efficient recalculations
+on market data changes, e.g. for greeks, scenarios and live market data updates.
+
+## 4. General comments
+
+### 4.1 Object ownership model
+
+All the objects allocated on the free-store are placed in `std::unique_ptr`s and moved into
+high-level containers retaining sole ownership: `Portfolio`, `ModelContainer`.
+
+Read-only access to these objects is provided by:
+* the containers, in the form of constant reference return values
+(exceptionally in the form of constant pointer return values
+to express that a null value is possible),
+* constant reference arguments of functions,
+* constant references stored in classes, initialized in the class constructors from constant reference arguments.
+
+In all those cases, the references must not outlive the owning containers.
+This is very easily achieved, without recourse to `shared_ptr`s.
+This approach is consistent with C++ Core Guidelines R.21, F.7, R.37.
+
+### 4.2 Maps
+
+All the maps are ordered maps.
+They should be hashed maps for efficiency.
 
