@@ -5,5 +5,5 @@ struct Portfolio;
 class PricingConfiguration;
 
 namespace PricingEngine {
-    PvResult price(const Portfolio& p, const PricingConfiguration& config);
+    PvResult price(const InstrumentMap& instruments, const PricingConfiguration& config);
 }

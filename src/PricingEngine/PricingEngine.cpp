@@ -122,9 +122,9 @@ namespace {
 
 namespace PricingEngine {
 
-    PvResult price(const Portfolio& p, const PricingConfiguration& config)
+    PvResult price(const InstrumentMap& instruments, const PricingConfiguration& config)
     {
-        const auto pricers = makePricers(p.instruments,config);
+        const auto pricers = makePricers(instruments,config);
 
         ModelContainer modelContainer;
         PvResult instrumentPvs;

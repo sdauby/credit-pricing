@@ -95,12 +95,12 @@ int main() {
     const auto p = getSamplePortfolio();
 
     std::cout << "Using the S3 pricer:\n";
-    auto s3Pvs = PricingEngine::price(p,PricingConfiguration{PricerKind::S3});
+    auto s3Pvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::S3});
     outputPvs(p,s3Pvs);
     std::cout << "\n";
 
     std::cout << "Using the IR pricer:\n";
-    auto irPvs = PricingEngine::price(p,PricingConfiguration{PricerKind::IR});
+    auto irPvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::IR});
     outputPvs(p,irPvs);
     std::cout << "\n";
 
