@@ -150,10 +150,11 @@ Within the Models component, there is no C++-level construct shared by every mod
 `InterestRateCurve` is extremely simplified. 
 Its data consist in just one `double` representing a flat continuously compounded rate. 
 
-`HazardRateCurve` is also extremely simplified, with a single `double` parameter.
+`HazardRateCurve` is also extremely simplified, with a constant hazard rate.
 It represents the default risk of a certain issuer in a certain currency.
-It has a `hazardRate()` member function, which provides forward hazard rates.
-(Improvement: I think that the implementation of this class is not mathematically correct.)
+Is has a `survivalProbability()` member function.
+The `hazardRate()` non-member function computes discrete hazard rates.
+`InterestRateCurve` and `HazardRateCurve` are structurally equivalent.
 
 `S3Model` is an implementation of the "building blocks for credit derivative pricing" of Philipp J. Schönbucher's
 *Credit Derivatives Pricing Models*, chapter 3.

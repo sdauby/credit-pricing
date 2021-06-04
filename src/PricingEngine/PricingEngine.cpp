@@ -62,7 +62,7 @@ namespace ModelFactory {
         std::vector<double> H(K);
         for (auto k=0; k<K; ++k) {
             F[k] = forwardRate(*irCurve,T[k],T[k+1]);
-            H[k] = hrCurve->rate(T[k],T[k+1]);
+            H[k] = hazardRate(*hrCurve,T[k],T[k+1]);
         }
         return std::make_unique<S3Model>(std::vector<Date>(T),std::move(F),std::move(H),recoveryRate);
     } 
