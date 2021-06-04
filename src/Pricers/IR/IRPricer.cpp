@@ -2,6 +2,7 @@
 #include "Instruments/Instrument.hpp"
 #include "Instruments/FixedCouponBond.hpp"
 #include "Instruments/FloatingCouponBond.hpp"
+#include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "ModelContainer/ModelContainer.hpp"
 #include "ModelContainer/InterestRateCurveId.hpp"
@@ -88,6 +89,40 @@ namespace {
         return pv;
     }
 
+    template<>
+    InterestRateCurveId IRUnitPricerImpl<IRSwap>::requiredCurve() const 
+    {
+        return { .ccy = instrument_.data().ccy };
+    }
+
+    template<>
+    double IRUnitPricerImpl<IRSwap>::pv(const InterestRateCurve & curve) const
+    {
+        const auto df = [&curve](Date t) {
+            using namespace std::chrono;
+            constexpr auto T0 = 0y;
+            return curve.discountFactor(T0,t);
+        };
+
+        const auto& data = instrument_.data();
+        const auto K = data.K;
+        const auto& t = data.t;
+        const auto N = t.size()-1;
+        auto pv = 0.0;
+
+        // Libors
+        pv -= df(t[0]) - df(t[N]);
+        
+        // fixed rates
+        for (auto n=1; n<=N; ++n) {
+            const auto d = dayCountFactor(t[n-1],t[n]);
+            pv += K * d * df(t[n]);
+        }
+
+        return pv;
+    }
+
+
     template<typename InstrumentT>
     std::unique_ptr<IRUnitPricer> makeIRUnitPricer_(const Instrument& instrument) 
     {
@@ -100,6 +135,7 @@ namespace {
         switch (instrument.kind()) {
             case FixedCouponBond   ::instrumentKind : return makeIRUnitPricer_<FixedCouponBond   >(instrument);
             case FloatingCouponBond::instrumentKind : return makeIRUnitPricer_<FloatingCouponBond>(instrument);
+            case IRSwap            ::instrumentKind : return makeIRUnitPricer_<IRSwap            >(instrument);
             default: 
                 assert(false && "Instrument kind not supported by IRPricer");
                 return {};

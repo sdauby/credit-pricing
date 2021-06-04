@@ -16,5 +16,10 @@ std::optional<PricerKind> PricingConfiguration::pricerKind(Instrument const& ins
                 case PricerKind::IR: return std::nullopt;
                 case PricerKind::S3: return pricerKind_;
             }
+        case InstrumentKind::IRSwap:
+            switch (pricerKind_) {
+                case PricerKind::IR: return pricerKind_;
+                case PricerKind::S3: return std::nullopt;
+            }
     }
 }

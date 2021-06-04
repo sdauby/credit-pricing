@@ -30,6 +30,9 @@ namespace {
             case Cds               ::instrumentKind : return makeS3UnitPricer_<Cds               >(instrument);
             case FixedCouponBond   ::instrumentKind : return makeS3UnitPricer_<FixedCouponBond   >(instrument);
             case FloatingCouponBond::instrumentKind : return makeS3UnitPricer_<FloatingCouponBond>(instrument);
+            default:
+                assert(false && "Instrument kind not supported by S3Pricer");
+                return {};
         }
     }
 

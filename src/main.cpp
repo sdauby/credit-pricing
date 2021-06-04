@@ -8,6 +8,7 @@
 #include "Instruments/Cds.hpp"
 #include "Instruments/FixedCouponBond.hpp"
 #include "Instruments/FloatingCouponBond.hpp"
+#include "Instruments/IRSwap.hpp"
 #include "PricingEngine/PricingConfiguration.hpp"
 #include "PricingEngine/PricingEngine.hpp"
 
@@ -46,6 +47,9 @@ namespace {
 
         p.instruments.emplace(5,make<FloatingCouponBond>(Ccy::USD, C, std::vector<Date>{ 0y, 2y, 4y, 6y, }, -0.02));
         p.positions.emplace(6, Position{ .notional = 1'000'000, .instrument = 5 });
+
+        p.instruments.emplace(6,make<IRSwap>(Ccy::USD, std::vector<Date>{ 0y, 1y, 2y, 3y, 4y, 5y}, 0.02));
+        p.positions.emplace(7, Position{ .notional = 1'000'000, .instrument = 6 });
 
         return p;
     }

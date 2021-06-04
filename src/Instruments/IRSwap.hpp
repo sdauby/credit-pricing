@@ -1,16 +1,14 @@
 #pragma once
 #include <vector>
 #include "Core/Currency.hpp"
-#include "Core/Issuer.hpp"
 #include "Core/Date.hpp"
 #include "InstrumentKind.hpp"
 #include "InstrumentImpl.hpp"
 
-struct CdsData {
+struct IRSwapData {
     Currency ccy = {};
-    Issuer refEntity;
     std::vector<Date> t; // period dates
-    double s = {}; // spread (paid)
+    double K = {}; // fixed rate (received)
 };
 
-using Cds = InstrumentImpl<InstrumentKind::Cds,CdsData>;
+using IRSwap = InstrumentImpl<InstrumentKind::IRSwap,IRSwapData>;
