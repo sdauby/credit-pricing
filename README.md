@@ -194,7 +194,8 @@ The reason for not using a `std::variant` for instruments is that, unlike model 
 are likely to have many data members. This makes a `std::variant` potentially memory-inefficient.
 Having said that, both choices can be revisited.
 
-(Improvement: `ModelId` has no role in ModelContainer so it would rather belong with Pricers.)
+Note that `ModelId` has no role in ModelContainer.
+It is defined in this component because of its close connection with the `ModelIdT` types.
 
 ### 3.4.3 ModelContainer
 
