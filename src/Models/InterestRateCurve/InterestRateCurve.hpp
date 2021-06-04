@@ -1,14 +1,17 @@
 #pragma once
 #include "Core/Date.hpp"
+#include <vector>
 
 class InterestRateCurve final {
 public:
     explicit InterestRateCurve(double rate);
+    InterestRateCurve(std::vector<Date>&& T, std::vector<double>&& r);
     
-    double discountFactor(Date t1, Date t2) const;
+    double discountFactor(Date t, Date u) const;
 
 private:
-    double rate_ = 0.0;
+    std::vector<Date> T_;
+    std::vector<double> r_;
 };
 
-double forwardRate(const InterestRateCurve& curve, Date t1, Date t2);
+double forwardRate(const InterestRateCurve& curve, Date t, Date u);
