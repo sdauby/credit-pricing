@@ -15,16 +15,25 @@ namespace ModelFactory {
     ModelPtr<InterestRateCurveId> 
     make<InterestRateCurveId>(const InterestRateCurveId& irCurveId, ModelContainer& modelContainer)
     {
-        double r = [ccy = irCurveId.ccy] () {
+        auto rates = [ccy = irCurveId.ccy] () {
             switch (ccy) {
                 using Ccy = Currency;
-                case Ccy::EUR: return 0.02;
-                case Ccy::GBP: return 0.03;
-                case Ccy::JPY: return 0.0;
-                case Ccy::USD: return 0.01;
+                using namespace std::chrono;
+                using RateData = std::pair<std::vector<Date>, std::vector<double>>;
+
+                case Ccy::EUR: 
+                    return RateData{ {   2y,      },
+                                     { 0.01, 0.02 } };
+                case Ccy::GBP: 
+                    return RateData{ {}, { 0.03 } };
+                case Ccy::JPY: 
+                    return RateData{ {}, { 0.0 } };
+                case Ccy::USD: 
+                    return RateData{ {   1y,   2y,   3y,   4y,   5y,       }, 
+                                     { 0.01, 0.02, 0.02, 0.01, 0.01, 0.01, } };
             }
         }();
-        return std::make_unique<InterestRateCurve>(r);
+        return std::make_unique<InterestRateCurve>(std::move(rates.first),std::move(rates.second));
     } 
 
     template<>
