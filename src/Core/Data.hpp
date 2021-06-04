@@ -8,8 +8,5 @@ namespace Data {
         extern const Issuer JPM;
         extern const Issuer C;
     }
-
-    double interestRate(Currency ccy);
-    double hazardRate(const Issuer& issuer, Currency ccy);
     double recoveryRate(const Issuer& issuer, Currency ccy);
 }

@@ -27,15 +27,36 @@ namespace ModelFactory {
     ModelPtr<InterestRateCurveId> 
     make<InterestRateCurveId>(const InterestRateCurveId& irCurveId, ModelContainer& modelContainer)
     {
-        return std::make_unique<InterestRateCurve>(Data::interestRate(irCurveId.ccy));
+        double r = [ccy = irCurveId.ccy] () {
+            switch (ccy) {
+                using Ccy = Currency;
+                case Ccy::EUR: return 0.02;
+                case Ccy::GBP: return 0.03;
+                case Ccy::JPY: return 0.0;
+                case Ccy::USD: return 0.01;
+            }
+        }();
+        return std::make_unique<InterestRateCurve>(r);
     } 
 
     template<>
     ModelPtr<HazardRateCurveId> 
     make<HazardRateCurveId>(const HazardRateCurveId& hrCurveId, ModelContainer& modelContainer)
     {
-        return std::make_unique<HazardRateCurve>(Data::hazardRate(hrCurveId.issuer,hrCurveId.ccy));
-    } 
+        double lambda = [&issuer = hrCurveId.issuer, ccy = hrCurveId.ccy]() {
+            using Ccy = Currency;
+            using namespace Data::Issuers;
+            if (issuer == BNP && ccy == Ccy::EUR)
+                return 0.01;
+            if (issuer == JPM && ccy == Ccy::USD)
+                return 0.02;
+            if (issuer == C && ccy == Ccy::USD)
+                return 0.03;
+            assert(false && "Missing hazard rate data");
+            return 0.0;
+        }();
+        return std::make_unique<HazardRateCurve>(lambda);
+    }
 
     template<>
     ModelPtr<S3ModelId> 
