@@ -4,6 +4,52 @@
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Models/S3/S3Model.hpp"
 
+#include <chrono>
+#include "Instruments/IRSwap.hpp"
+#include "Models/InterestRateCurve/IRCurveCalibration.hpp"
+#include "Pricers/IR/IRSwapAnalytics.hpp"
+#include <cmath>
+
+namespace {
+    // annual period dates and zero fixed rate
+    std::unique_ptr<IRSwap> makeIRSwap(Currency ccy, int nPeriods)
+    {
+        using namespace std::chrono;
+
+        std::vector<Date> ts(nPeriods+1);
+        for (auto i=0; i<=nPeriods; ++i)
+            ts[i]=year(i);
+
+        return make<IRSwap>(ccy,std::move(ts),0.0);
+    }
+
+    std::vector<std::unique_ptr<IRSwap>> makeIRSwapStrip(Currency ccy, int N)
+    {
+        std::vector<std::unique_ptr<IRSwap>> swaps(N);
+        for (auto i=1; i<=N; ++i)
+            swaps[i-1] = makeIRSwap(ccy,i);
+        return swaps;
+    }
+
+    // Given the rates s1,s2...sn of the 1Y,2Y...NY swaps, return the corresponding IR curve
+    std::unique_ptr<InterestRateCurve> makeIRCurve(const std::vector<double>&& swapRates)
+    {
+        const Currency ccy = {};
+        const auto N = swapRates.size();
+        auto swaps = makeIRSwapStrip(ccy,N);
+        IRCurveCalibration calibration(std::move(swaps));
+        
+        auto curve = calibration.calibrate(swapRates);
+        
+        const auto& instruments = calibration.instruments();
+        for (auto i=0; i<N; ++i)
+            assert(std::fabs( swapRate(*instruments[i],*curve) - swapRates[i] ) < 1e-8);
+
+        return curve;
+    }
+}
+
+
 namespace ModelFactory {
 
     void populate(ModelContainer& modelContainer, const ModelId& modelId);
@@ -15,25 +61,8 @@ namespace ModelFactory {
     ModelPtr<InterestRateCurveId> 
     make<InterestRateCurveId>(const InterestRateCurveId& irCurveId, ModelContainer& modelContainer)
     {
-        auto rates = [ccy = irCurveId.ccy] () {
-            switch (ccy) {
-                using Ccy = Currency;
-                using namespace std::chrono;
-                using RateData = std::pair<std::vector<Date>, std::vector<double>>;
-
-                case Ccy::EUR: 
-                    return RateData{ {   2y,      },
-                                     { 0.01, 0.02 } };
-                case Ccy::GBP: 
-                    return RateData{ {}, { 0.03 } };
-                case Ccy::JPY: 
-                    return RateData{ {}, { 0.0 } };
-                case Ccy::USD: 
-                    return RateData{ {   1y,   2y,   3y,   4y,   5y,       }, 
-                                     { 0.01, 0.02, 0.02, 0.01, 0.01, 0.01, } };
-            }
-        }();
-        return std::make_unique<InterestRateCurve>(std::move(rates.first),std::move(rates.second));
+        auto swapRates = { 0.02, 0.02, 0.02 };
+        return makeIRCurve(swapRates);
     } 
 
     template<>

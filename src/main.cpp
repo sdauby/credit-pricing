@@ -13,12 +13,6 @@
 #include "PricingEngine/PricingEngine.hpp"
 
 namespace {
-    template<typename InstrumentType>
-    const auto make = [](auto&&... xs) {
-        using DataType = typename InstrumentType::DataType;
-        return std::unique_ptr<Instrument>{new InstrumentType{DataType{std::forward<decltype(xs)>(xs)...}}};
-    };
-
     Portfolio getSamplePortfolio()
     {
         Portfolio p;

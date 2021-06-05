@@ -18,3 +18,11 @@ public:
 private:
     DataType data_;
 };
+
+// usage: make<instrumentKind>(instrumentData)
+template<typename InstrumentType>
+constexpr auto make = [](auto&&... xs) {
+    using DataType = typename InstrumentType::DataType;
+    return std::make_unique<InstrumentType>(DataType{std::forward<decltype(xs)>(xs)...});
+};
+

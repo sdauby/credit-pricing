@@ -9,6 +9,8 @@ public:
     
     double discountFactor(Date t, Date u) const;
 
+    friend class IRCurveCalibration;
+
 private:
     std::vector<Date> T_;
     std::vector<double> r_;
