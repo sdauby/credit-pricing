@@ -1,6 +1,6 @@
 #include "IRCurveCalibration.hpp"
+#include "IRSwapAnalytics.hpp"
 #include "Core/Solve.hpp"
-#include "Pricers/IR/IRSwapAnalytics.hpp"
 
 IRCurveCalibration::IRCurveCalibration(InstrumentVector&& instruments) :
     instruments_(std::move(instruments))

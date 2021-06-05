@@ -7,7 +7,7 @@
 #include <chrono>
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/IRCurveCalibration.hpp"
-#include "Pricers/IR/IRSwapAnalytics.hpp"
+#include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
 #include <cmath>
 
 namespace {

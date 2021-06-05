@@ -13,11 +13,11 @@ Core/Data.cpp
 Core/Solve.cpp
 Models/HazardRateCurve/HazardRateCurve.cpp
 Models/InterestRateCurve/InterestRateCurve.cpp
+Models/InterestRateCurve/IRSwapAnalytics.cpp
 Models/InterestRateCurve/IRCurveCalibration.cpp
 Models/S3/S3Model.cpp
 Models/S3/Utilities.cpp
 ModelContainer/ModelContainer.cpp
-Pricers/IR/IRSwapAnalytics.cpp
 Pricers/IR/IRPricer.cpp
 Pricers/S3/CdsPricing.cpp
 Pricers/S3/FixedCouponBondPricing.cpp

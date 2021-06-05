@@ -4,6 +4,7 @@
 #include "Instruments/FloatingCouponBond.hpp"
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
+#include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
 #include "ModelContainer/ModelContainer.hpp"
 #include "ModelContainer/InterestRateCurveId.hpp"
 #include <set>
@@ -114,10 +115,7 @@ namespace {
         pv -= df(t[0]) - df(t[N]);
         
         // fixed rates
-        for (auto n=1; n<=N; ++n) {
-            const auto d = dayCountFactor(t[n-1],t[n]);
-            pv += K * d * df(t[n]);
-        }
+        pv += K * annuity(instrument_,curve);
 
         return pv;
     }
