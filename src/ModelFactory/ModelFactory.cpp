@@ -11,32 +11,34 @@
 #include <cmath>
 
 namespace {
-    // annual period dates and zero fixed rate
-    std::unique_ptr<IRSwap> makeIRSwap(Currency ccy, int nPeriods)
+    // annual period dates, unspecified currency, zero fixed rate
+    std::unique_ptr<IRSwap> makeIRSwap(int nPeriods)
     {
+        const auto ccy = Currency{};
+        const auto rate = 0.0;
+
         using namespace std::chrono;
 
         std::vector<Date> ts(nPeriods+1);
         for (auto i=0; i<=nPeriods; ++i)
             ts[i]=year(i);
 
-        return make<IRSwap>(ccy,std::move(ts),0.0);
+        return make<IRSwap>(ccy,std::move(ts),rate);
     }
 
-    std::vector<std::unique_ptr<IRSwap>> makeIRSwapStrip(Currency ccy, int N)
+    std::vector<std::unique_ptr<IRSwap>> makeIRSwapStrip(int N)
     {
         std::vector<std::unique_ptr<IRSwap>> swaps(N);
         for (auto i=1; i<=N; ++i)
-            swaps[i-1] = makeIRSwap(ccy,i);
+            swaps[i-1] = makeIRSwap(i);
         return swaps;
     }
 
     // Given the rates s1,s2...sn of the 1Y,2Y...NY swaps, return the corresponding IR curve
     std::unique_ptr<InterestRateCurve> makeIRCurve(const std::vector<double>&& swapRates)
     {
-        const Currency ccy = {};
         const auto N = swapRates.size();
-        auto swaps = makeIRSwapStrip(ccy,N);
+        auto swaps = makeIRSwapStrip(N);
         IRCurveCalibration calibration(std::move(swaps));
         
         auto curve = calibration.calibrate(swapRates);

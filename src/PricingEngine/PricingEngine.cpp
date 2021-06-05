@@ -4,11 +4,11 @@
 #include "Instruments/Instrument.hpp"
 #include "Instruments/Portfolio.hpp"
 #include "ModelContainer/ModelContainer.hpp"
+#include "ModelFactory/ModelFactory.hpp"
 #include "Pricers/Pricer.hpp"
 #include "Pricers/IR/IRPricer.hpp"
 #include "Pricers/S3/S3Pricer.hpp"
 #include "PricingConfiguration.hpp"
-#include "ModelFactory.hpp"
 
 namespace {
 

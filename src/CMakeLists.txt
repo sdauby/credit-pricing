@@ -18,12 +18,12 @@ Models/InterestRateCurve/IRCurveCalibration.cpp
 Models/S3/S3Model.cpp
 Models/S3/Utilities.cpp
 ModelContainer/ModelContainer.cpp
+ModelFactory/ModelFactory.cpp
 Pricers/IR/IRPricer.cpp
 Pricers/S3/CdsPricing.cpp
 Pricers/S3/FixedCouponBondPricing.cpp
 Pricers/S3/FloatingCouponBondPricing.cpp
 Pricers/S3/S3Pricer.cpp
-PricingEngine/ModelFactory.cpp
 PricingEngine/PricingConfiguration.cpp
 PricingEngine/PricingEngine.cpp
 main.cpp
