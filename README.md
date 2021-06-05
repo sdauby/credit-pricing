@@ -6,7 +6,7 @@ This project is the prototype of a pricing engine for financial products.
 The focus is on the component architecture, so the business logic components are extremely simplified.
 
 The business logic components are:
-* 3 kinds of instruments (fixed coupon bond, floating coupon bond, credit default swap);
+* 4 kinds of instruments (fixed coupon bond, floating coupon bond, credit default swap, interest rate swap);
 * 3 market models (interest rate curve, hazard rate curve, S3 model (S3 stands for Schönbucher chapter 3));
 * 2 pricers: IR for interest-rate pricing, S3 for credit pricing.
 
@@ -86,11 +86,13 @@ This extreme simplification obviates day count factor complications.
 
 I have also placed here the `Data` namespace, which provides a few hard-coded market values.
 
+There is also the `solve()` function, a very primitive root solver.
+
 ## 3.2 Instruments
 
 #### 3.2.1 Instrument
 
-The `InstrumentKind` enum class assigns an enumerator to every instrument type (`FixedCouponBond`, `FloatingCouponBond`, `Cds`).
+The `InstrumentKind` enum class assigns an enumerator to every instrument type (`FixedCouponBond`, `FloatingCouponBond`, `Cds`, `IRSwap`).
 
 The `Instrument` interface is intended to be derived by concrete instrument types.
 Its raison d'être is to enable the collection of heterogeneous instruments in a single container.
@@ -103,9 +105,9 @@ The `DataT` type parameter is intended to be a concrete type representing instru
 which they give read-only access via a `data()` non-virtual member function.
 Finally, they provide a constructor which moves a `DataT` argument into the `DataT` data member.
 
-The `FixedCouponBond`, `FloatingCouponBond` and `Cds` concrete classes are derived from `Instrument`,
+The `FixedCouponBond`, `FloatingCouponBond`, `Cds` and `IRSwap` concrete classes are derived from `Instrument`,
 instantiated from the `InstrumentImpl` template, with respectively the `FixedCouponBondData`,
-`FloatingCouponBondData` and `CdsData` structs as `DataT` parameter.
+`FloatingCouponBondData`, `CdsData` and `IRSwapData` structs as `DataT` parameter.
 For example, `FixedCouponBondData` represents the data of a fixed coupon bond:
 ```c++
 struct FixedCouponBondData {
@@ -147,14 +149,14 @@ At the lowest end of the spectrum of model complexity lies the degenerate case o
 
 Within the Models component, there is no C++-level construct shared by every model.
 
-`InterestRateCurve` is extremely simplified. 
-Its data consist in just one `double` representing a flat continuously compounded rate. 
+`InterestRateCurve` has piecewise constant continuously compounded rates.
+It comes with a friend `IRCurveCalibration` class which builds a curve repricing a
+strip of market swap rates.
 
-`HazardRateCurve` is also extremely simplified, with a constant hazard rate.
+`HazardRateCurve` is extremely simplified, with a constant hazard rate.
 It represents the default risk of a certain issuer in a certain currency.
 Is has a `survivalProbability()` member function.
 The `hazardRate()` non-member function computes discrete hazard rates.
-`InterestRateCurve` and `HazardRateCurve` are structurally equivalent.
 
 `S3Model` is an implementation of the "building blocks for credit derivative pricing" of Philipp J. Schönbucher's
 *Credit Derivatives Pricing Models*, chapter 3.
@@ -188,11 +190,10 @@ It is useful, for example, to enable the collection of heterogeneous `ModelIdT` 
 The `ModelT` / `ModelIdT` type relationship is analogous to the `Instrument` / `InstrumentImpl`
 instance relationship.
 Yet, they are implemented differently.
-The reason is that `std::variant`, being a concrete type, is preferrable to a class hierarchy
-(cf C++ Core Guidelines C.10).
-The reason for not using a `std::variant` for instruments is that, unlike model identifiers, some instrument types
-are likely to have many data members. This makes a `std::variant` potentially memory-inefficient.
-Having said that, both choices can be revisited.
+There is no strong reason for this difference.
+`std::variant` has the benefit of being a concrete type (cf C++ Core Guidelines C.10).
+On the other hand, it is less memory efficent than a pointer to an interface type.
+The choice of one or the other (or yet another) approach is not set in stone.
 
 Note that `ModelId` has no role in ModelContainer.
 It is defined in this component because of its close connection with the `ModelIdT` types.
