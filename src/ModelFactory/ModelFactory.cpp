@@ -1,14 +1,110 @@
 #include "ModelFactory.hpp"
-#include "Core/Data.hpp"
+#include "Models/Model.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Models/S3/S3Model.hpp"
+#include "ModelContainer/InterestRateCurveId.hpp"
+#include "ModelContainer/HazardRateCurveId.hpp"
+#include "ModelContainer/S3ModelId.hpp"
+#include "Core/Data.hpp"
 
 #include <chrono>
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/IRCurveCalibration.hpp"
 #include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
 #include <cmath>
+
+namespace {
+
+    template<typename T>
+    constexpr bool always_false_v = false;
+
+    template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+    template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+    const Model* get(const ModelContainer& modelContainer, const ModelId& modelId)
+    {
+        return std::visit(overloaded {
+            [&modelContainer](const InterestRateCurveId& irCurveId) -> const Model* {
+                return modelContainer.get(irCurveId);
+            },
+
+            [&modelContainer](const HazardRateCurveId& hrCurveId) -> const Model* {
+                return modelContainer.get(hrCurveId);
+            },
+
+            [&modelContainer](const S3ModelId& s3ModelId) -> const Model* {
+                return modelContainer.get(s3ModelId);
+            }
+        }
+        , modelId);
+    }
+
+    void set(ModelContainer& modelContainer, const ModelId& modelId, std::unique_ptr<Model>&& model)
+    {
+        std::visit(
+            [&modelContainer, model = std::move(model)](auto&& modelId) mutable {
+                using T = std::decay_t<decltype(modelId)>;
+                if constexpr (std::is_same_v<T, InterestRateCurveId>) {
+                    const auto* model_ = model.release();
+                    const auto* irCurve = dynamic_cast<const InterestRateCurve*>(model_);
+                    auto irCurve_ = std::unique_ptr<const InterestRateCurve>(irCurve);
+                    modelContainer.set(modelId, std::move(irCurve_));
+                } else if constexpr (std::is_same_v<T, HazardRateCurveId>) {
+                    const auto* model_ = model.release();
+                    const auto* hrCurve = dynamic_cast<const HazardRateCurve*>(model_);
+                    auto hrCurve_ = std::unique_ptr<const HazardRateCurve>(hrCurve);
+                    modelContainer.set(modelId, std::move(hrCurve_));
+                } else if constexpr (std::is_same_v<T, S3ModelId>) {
+                    const auto* model_ = model.release();
+                    const auto* s3Model = dynamic_cast<const S3Model*>(model_);
+                    auto s3Model_ = std::unique_ptr<const S3Model>(s3Model);
+                    modelContainer.set(modelId, std::move(s3Model_));
+                } else {
+                    static_assert(always_false_v<T>, "non-exhaustive visitor");
+                }
+            }            
+            , modelId);
+    }
+}
+
+
+void populate(ModelContainer& modelContainer,
+              const ModelId& modelId,
+              const ModelFactory& modelFactory)
+{
+    const auto& requiredModels = modelFactory.requiredModels(modelId);
+    for (const auto& requiredModel: requiredModels) {
+        if (!get(modelContainer,requiredModel))
+            populate(modelContainer,requiredModel,modelFactory);
+    }
+    auto model = modelFactory.make(modelId,modelContainer);
+    set(modelContainer,modelId,std::move(model));
+}
+
+std::vector<ModelId> ModelFactory::requiredModels(const ModelId& modelId) const
+{
+    return std::visit(overloaded {
+            [](const S3ModelId& s3ModelId) -> std::vector<ModelId> {
+                const auto ccy = s3ModelId.ccy;
+                const auto& issuer = s3ModelId.issuer;
+                const auto& T = s3ModelId.tenorStructure;
+                
+                const auto irCurveId = InterestRateCurveId{ccy};
+                const auto hrCurveId = HazardRateCurveId{issuer,ccy};
+
+                return { irCurveId, hrCurveId };
+            },
+            [](const InterestRateCurveId& irCurveId) -> std::vector<ModelId> {
+                return {};
+            },
+            [](const HazardRateCurveId& hrCurveId) -> std::vector<ModelId> {
+                return {};
+            }
+        },
+        modelId);
+}
+
 
 namespace {
     // annual period dates, unspecified currency, zero fixed rate
@@ -51,25 +147,22 @@ namespace {
     }
 }
 
-
-namespace ModelFactory {
-
-    void populate(ModelContainer& modelContainer, const ModelId& modelId);
+namespace {
 
     template<typename ModelIdT>
-    ModelPtr<ModelIdT> make(const ModelIdT& id, ModelContainer& modelContainer);
+    std::unique_ptr<Model> make_(const ModelIdT& id, const ModelContainer& modelContainer);
 
     template<>
-    ModelPtr<InterestRateCurveId> 
-    make<InterestRateCurveId>(const InterestRateCurveId& irCurveId, ModelContainer& modelContainer)
+    std::unique_ptr<Model>
+    make_<InterestRateCurveId>(const InterestRateCurveId& irCurveId, const ModelContainer& modelContainer)
     {
         auto swapRates = { 0.02, 0.02, 0.02 };
         return makeIRCurve(swapRates);
     } 
 
     template<>
-    ModelPtr<HazardRateCurveId> 
-    make<HazardRateCurveId>(const HazardRateCurveId& hrCurveId, ModelContainer& modelContainer)
+    std::unique_ptr<Model>
+    make_<HazardRateCurveId>(const HazardRateCurveId& hrCurveId, const ModelContainer& modelContainer)
     {
         double lambda = [&issuer = hrCurveId.issuer, ccy = hrCurveId.ccy]() {
             using Ccy = Currency;
@@ -87,20 +180,18 @@ namespace ModelFactory {
     }
 
     template<>
-    ModelPtr<S3ModelId> 
-    make<S3ModelId>(const S3ModelId& s3ModelId, ModelContainer& modelContainer)
+    std::unique_ptr<Model>
+    make_<S3ModelId>(const S3ModelId& s3ModelId, const ModelContainer& modelContainer)
     {
         const auto ccy = s3ModelId.ccy;
         const auto& issuer = s3ModelId.issuer;
         const auto& T = s3ModelId.tenorStructure;
         
         const auto irCurveId = InterestRateCurveId{ccy};
-        populate(modelContainer,irCurveId);
         const auto* irCurve = modelContainer.get(irCurveId);
         assert(irCurve);
 
         const auto hrCurveId = HazardRateCurveId{issuer,ccy};
-        populate(modelContainer,hrCurveId);
         const auto* hrCurve = modelContainer.get(hrCurveId);
         assert(hrCurve);
 
@@ -115,32 +206,13 @@ namespace ModelFactory {
         }
         return std::make_unique<S3Model>(std::vector<Date>(T),std::move(F),std::move(H),recoveryRate);
     } 
+}
 
-    // Cf Stroustrup, A Tour of C++, 13.5.1
-    template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-    template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-    
-    void populate(ModelContainer& modelContainer, const ModelId& modelId)
-    {
-        std::visit(overloaded {
-            [&modelContainer](const InterestRateCurveId& irCurveId) {
-                const auto* ptr = modelContainer.get(irCurveId);
-                if (!ptr)
-                    modelContainer.set(irCurveId,make(irCurveId,modelContainer));
-            },
-
-            [&modelContainer](const HazardRateCurveId& hrCurveId) {
-                const auto* ptr = modelContainer.get(hrCurveId);
-                if (!ptr)
-                    modelContainer.set(hrCurveId,make(hrCurveId,modelContainer));
-            },
-
-            [&modelContainer](const S3ModelId& s3ModelId) {
-                const auto* ptr = modelContainer.get(s3ModelId);
-                if (!ptr)
-                    modelContainer.set(s3ModelId,make(s3ModelId,modelContainer));
-            },
-        },modelId);
-    }
-
+std::unique_ptr<Model> ModelFactory::make(const ModelId& modelId, const ModelContainer& modelContainer) const
+{
+    return std::visit(
+        [&modelContainer] (auto&& id) {
+            return make_(id,modelContainer);
+        },
+        modelId);
 }

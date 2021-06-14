@@ -9,6 +9,7 @@
 #include "Instruments/FixedCouponBond.hpp"
 #include "Instruments/FloatingCouponBond.hpp"
 #include "Instruments/IRSwap.hpp"
+#include "ModelFactory/ModelFactory.hpp"
 #include "PricingEngine/PricingConfiguration.hpp"
 #include "PricingEngine/PricingEngine.hpp"
 
@@ -91,14 +92,15 @@ namespace {
 
 int main() {
     const auto p = getSamplePortfolio();
+    ModelFactory modelFactory;
 
     std::cout << "Using the S3 pricer:\n";
-    auto s3Pvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::S3});
+    auto s3Pvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::S3}, modelFactory);
     outputPvs(p,s3Pvs);
     std::cout << "\n";
 
     std::cout << "Using the IR pricer:\n";
-    auto irPvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::IR});
+    auto irPvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::IR}, modelFactory);
     outputPvs(p,irPvs);
     std::cout << "\n";
 

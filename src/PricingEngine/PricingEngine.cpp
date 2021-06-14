@@ -36,7 +36,9 @@ namespace {
 
 namespace PricingEngine {
 
-    PvResult price(const InstrumentMap& instruments, const PricingConfiguration& config)
+    PvResult price(const InstrumentMap& instruments, 
+                   const PricingConfiguration& config,
+                   const ModelFactory& modelFactory)
     {
         const auto pricers = makePricers(instruments,config);
 
@@ -44,7 +46,7 @@ namespace PricingEngine {
         PvResult instrumentPvs;
         for (const auto& pricer : pricers) {
             for (auto&& modelId : pricer->requiredModels())
-                ModelFactory::populate(modelContainer,modelId);
+                populate(modelContainer,modelId,modelFactory);
             instrumentPvs.merge(pricer->pvs(modelContainer));
         }
         return instrumentPvs;
