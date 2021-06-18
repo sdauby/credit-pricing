@@ -36,14 +36,15 @@ namespace {
 
 namespace PricingEngine {
 
-    PvResult price(const InstrumentMap& instruments, 
-                   const PricingConfiguration& config,
-                   const ModelFactory& modelFactory)
+    std::map<InstrumentId,Result> price(const InstrumentMap& instruments, 
+                                        const PricingConfiguration& config,
+                                        const std::vector<Metric>& metrics)
     {
+        ModelFactory modelFactory;
         const auto pricers = makePricers(instruments,config);
 
         ModelContainer modelContainer;
-        PvResult instrumentPvs;
+        ResultMap instrumentPvs;
         for (const auto& pricer : pricers) {
             for (auto&& modelId : pricer->requiredModels())
                 populate(modelContainer,modelId,modelFactory);

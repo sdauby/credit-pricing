@@ -10,6 +10,7 @@
 #include "Instruments/FloatingCouponBond.hpp"
 #include "Instruments/IRSwap.hpp"
 #include "ModelFactory/ModelFactory.hpp"
+#include "Pricers/Metric.hpp"
 #include "PricingEngine/PricingConfiguration.hpp"
 #include "PricingEngine/PricingEngine.hpp"
 
@@ -74,7 +75,11 @@ namespace {
             const auto& pv_ccy = [&instrumentPvs, &instrumentId]() -> 
                 std::optional<std::pair<double,Currency>> {
                 if (const auto i = instrumentPvs.find(instrumentId); i != instrumentPvs.end()) {
-                    return {i->second};
+                    const auto& result = i->second;
+                    assert(result.size() == 1);
+                    const auto& [key, value] = *result.cbegin();
+                    const auto pvKey = std::get<PVKey>(key);
+                    return std::pair{value,pvKey.ccy};
                 } else {
                     return std::nullopt;
                 }
@@ -92,15 +97,16 @@ namespace {
 
 int main() {
     const auto p = getSamplePortfolio();
-    ModelFactory modelFactory;
+
+    const auto metrics = std::vector<Metric> {Metric::PV};
 
     std::cout << "Using the S3 pricer:\n";
-    auto s3Pvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::S3}, modelFactory);
+    auto s3Pvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::S3},metrics);
     outputPvs(p,s3Pvs);
     std::cout << "\n";
 
     std::cout << "Using the IR pricer:\n";
-    auto irPvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::IR}, modelFactory);
+    auto irPvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::IR},metrics);
     outputPvs(p,irPvs);
     std::cout << "\n";
 

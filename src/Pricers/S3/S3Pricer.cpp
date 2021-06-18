@@ -84,16 +84,17 @@ std::vector<ModelId> S3Pricer::requiredModels() const
     return modelIds;
 }
 
-PvResult S3Pricer::pvs(const ModelContainer& modelContainer) const 
+ResultMap S3Pricer::pvs(const ModelContainer& modelContainer) const 
 {
-    PvResult instrumentPvs;
+    ResultMap instrumentPvs;
     for (const auto& [instrumentId,unitPricer] : unitPricers_) {
         const auto& s3ModelId = s3ModelIds_.at(instrumentId);
         const auto* model = modelContainer.get(s3ModelId);
         assert(model!=nullptr);
         const auto pv = unitPricer->pv(*model);
-        const auto ccy = s3ModelId.ccy;
-        instrumentPvs.emplace(instrumentId,std::pair{pv,ccy});
+        const auto key = PVKey{s3ModelId.ccy};
+        auto result = Result{ std::pair{key,pv} };
+        instrumentPvs.emplace(instrumentId,std::move(result));
     }
     return instrumentPvs;
 }
