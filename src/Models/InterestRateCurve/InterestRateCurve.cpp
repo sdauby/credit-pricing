@@ -16,9 +16,8 @@ double InterestRateCurve::discountFactor(Date t, Date u) const
 {
     assert(t<=u && "bad discount factor arguments");
 
-    const auto N = T_.size();
-
-    const auto locate = [&T = T_, N] (Date x) {
+    const auto locate = [&T = T_] (Date x) {
+        const auto N = T.size();
         const auto i = std::lower_bound(T.cbegin(),T.cend(),x) - T.cbegin();
         assert(i==N || x<=T[i]);
         assert(i==0 || T[i-1]<x);
@@ -36,6 +35,17 @@ double InterestRateCurve::discountFactor(Date t, Date u) const
     }
     return df;
 }
+
+
+std::unique_ptr<InterestRateCurve> InterestRateCurve::applyRateShift(double rateShift) const
+{
+    auto T = T_;
+    auto r = r_;
+    for (auto& rate : r)
+        rate += rateShift;
+    return make_unique<InterestRateCurve>(std::move(T),std::move(r));
+}
+
 
 double forwardRate(const InterestRateCurve& curve, Date t, Date u)
 {

@@ -10,6 +10,7 @@ using ModelPtr = std::unique_ptr<const typename ModelIdT::ModelType>;
 class ModelContainer final {
 public:
     ModelContainer();
+    explicit ModelContainer(const ModelContainer* baseContainer);
     ~ModelContainer();
 
     template<typename ModelIdT>
@@ -17,6 +18,9 @@ public:
 
     template<typename ModelIdT>
     void set(const ModelIdT& id, ModelPtr<ModelIdT>&& model);
+
+    template<typename ModelIdT>
+    std::vector<ModelIdT> modelIds() const;
 
 private:
     struct Impl;

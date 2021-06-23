@@ -10,6 +10,7 @@ public:
     
     double discountFactor(Date t, Date u) const;
 
+    std::unique_ptr<InterestRateCurve> applyRateShift(double rateShift) const;
     friend class IRCurveCalibration;
 
 private:
@@ -18,3 +19,4 @@ private:
 };
 
 double forwardRate(const InterestRateCurve& curve, Date t, Date u);
+

@@ -73,16 +73,16 @@ void populate(ModelContainer& modelContainer,
               const ModelId& modelId,
               const ModelFactory& modelFactory)
 {
-    const auto& requiredModels = modelFactory.requiredModels(modelId);
-    for (const auto& requiredModel: requiredModels) {
-        if (!get(modelContainer,requiredModel))
-            populate(modelContainer,requiredModel,modelFactory);
+    const auto& precedents = modelFactory.precedents(modelId);
+    for (const auto& precedent: precedents) {
+        if (!get(modelContainer,precedent))
+            populate(modelContainer,precedent,modelFactory);
     }
     auto model = modelFactory.make(modelId,modelContainer);
     set(modelContainer,modelId,std::move(model));
 }
 
-std::vector<ModelId> ModelFactory::requiredModels(const ModelId& modelId) const
+std::vector<ModelId> ModelFactory::precedents(const ModelId& modelId) const
 {
     return std::visit(overloaded {
             [](const S3ModelId& s3ModelId) -> std::vector<ModelId> {

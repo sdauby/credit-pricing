@@ -11,6 +11,7 @@ add_executable(main
 Core/Date.cpp
 Core/Data.cpp
 Core/Solve.cpp
+Core/Tabulator.cpp
 Models/HazardRateCurve/HazardRateCurve.cpp
 Models/InterestRateCurve/InterestRateCurve.cpp
 Models/InterestRateCurve/IRSwapAnalytics.cpp
@@ -24,6 +25,10 @@ Pricers/S3/CdsPricing.cpp
 Pricers/S3/FixedCouponBondPricing.cpp
 Pricers/S3/FloatingCouponBondPricing.cpp
 Pricers/S3/S3Pricer.cpp
+Metrics/Metric.cpp
+Metrics/PVImpl.cpp
+Metrics/IRDeltaImpl.cpp
+Metrics/Result.cpp
 PricingEngine/PricingConfiguration.cpp
 PricingEngine/PricingEngine.cpp
 main.cpp

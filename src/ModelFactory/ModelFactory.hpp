@@ -6,7 +6,7 @@ class Model;
 
 class ModelFactory {
 public:
-    std::vector<ModelId> requiredModels(const ModelId& modelId) const;
+    std::vector<ModelId> precedents(const ModelId& modelId) const;
     std::unique_ptr<Model> make(const ModelId& modelId, const ModelContainer& modelContainer) const;
 };
 

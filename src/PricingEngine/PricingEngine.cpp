@@ -1,8 +1,10 @@
 #include "PricingEngine.hpp"
 #include <iomanip>
 #include <iostream>
+#include <set>
 #include "Instruments/Instrument.hpp"
 #include "Instruments/Portfolio.hpp"
+#include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "ModelContainer/ModelContainer.hpp"
 #include "ModelFactory/ModelFactory.hpp"
 #include "Pricers/Pricer.hpp"
@@ -18,11 +20,9 @@ namespace {
         std::vector<InstrumentId> pricedWithIR;
         std::vector<InstrumentId> pricedWithS3;
         for (const auto& [id,instrument] : instruments) {
-            if (const auto pricerKind = config.pricerKind(*instrument)) {
-                switch (*pricerKind) {
-                    case PricerKind::IR: pricedWithIR.emplace_back(id); break;
-                    case PricerKind::S3: pricedWithS3.emplace_back(id); break;
-                }
+            switch (config.pricerKind(*instrument)) {
+                case PricerKind::IR: pricedWithIR.emplace_back(id); break;
+                case PricerKind::S3: pricedWithS3.emplace_back(id); break;
             }
         }
 
@@ -36,21 +36,28 @@ namespace {
 
 namespace PricingEngine {
 
-    std::map<InstrumentId,Result> price(const InstrumentMap& instruments, 
-                                        const PricingConfiguration& config,
-                                        const std::vector<Metric>& metrics)
+    std::map<InstrumentId,Result> run(const InstrumentMap& instruments, 
+                                      const PricingConfiguration& config,
+                                      const std::vector<Metric>& metrics)
     {
-        ModelFactory modelFactory;
         const auto pricers = makePricers(instruments,config);
 
         ModelContainer modelContainer;
-        ResultMap instrumentPvs;
+        ModelFactory modelFactory;
         for (const auto& pricer : pricers) {
-            for (auto&& modelId : pricer->requiredModels())
+            for (const auto& modelId : pricer->requiredModels())
                 populate(modelContainer,modelId,modelFactory);
-            instrumentPvs.merge(pricer->pvs(modelContainer));
         }
-        return instrumentPvs;
-    }
 
+        std::map<InstrumentId,Result> results;
+        for (const auto& metric : metrics) {
+            const auto metricImpl = makeMetricImpl(metric);
+            for (const auto& pricer : pricers) {
+                auto results_ = metricImpl->compute(*pricer,modelContainer);
+                for (auto& [instrumentId,result] : results_)
+                    results[instrumentId].merge(result);
+            }
+        }
+        return results;
+    }
 }

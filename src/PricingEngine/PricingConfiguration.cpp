@@ -2,24 +2,18 @@
 #include "Instruments/Instrument.hpp"
 #include "Instruments/InstrumentKind.hpp"
 
-PricingConfiguration::PricingConfiguration(PricerKind pricerKind) : pricerKind_(pricerKind) {}
+PricingConfiguration::PricingConfiguration(PricerKind preferredKind) : preferredKind_(preferredKind) {}
 
-std::optional<PricerKind> PricingConfiguration::pricerKind(Instrument const& instrument) const
+PricerKind PricingConfiguration::pricerKind(Instrument const& instrument) const
 {
     switch (instrument.kind()) {
         case InstrumentKind::FixedCouponBond: 
-            return pricerKind_;
+            return preferredKind_;
         case InstrumentKind::FloatingCouponBond:
-            return pricerKind_;
+            return preferredKind_;
         case InstrumentKind::Cds:
-            switch (pricerKind_) {
-                case PricerKind::IR: return std::nullopt;
-                case PricerKind::S3: return pricerKind_;
-            }
+            return PricerKind::S3;
         case InstrumentKind::IRSwap:
-            switch (pricerKind_) {
-                case PricerKind::IR: return pricerKind_;
-                case PricerKind::S3: return std::nullopt;
-            }
+            return PricerKind::IR;
     }
 }

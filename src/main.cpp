@@ -1,16 +1,18 @@
-#include <iomanip>
 #include <iostream>
+#include <set>
 #include "Core/Currency.hpp"
 #include "Core/Issuer.hpp"
 #include "Core/Date.hpp"
 #include "Core/Data.hpp"
+#include "Core/Tabulator.hpp"
 #include "Instruments/Portfolio.hpp"
 #include "Instruments/Cds.hpp"
 #include "Instruments/FixedCouponBond.hpp"
 #include "Instruments/FloatingCouponBond.hpp"
 #include "Instruments/IRSwap.hpp"
 #include "ModelFactory/ModelFactory.hpp"
-#include "Pricers/Metric.hpp"
+#include "Metrics/Metric.hpp"
+#include "Metrics/Result.hpp"
 #include "PricingEngine/PricingConfiguration.hpp"
 #include "PricingEngine/PricingEngine.hpp"
 
@@ -50,65 +52,60 @@ namespace {
         return p;
     }
 
-    void outputPvs(const Portfolio& p, const auto& instrumentPvs)
+    void outputMetrics(const Portfolio& p, 
+                       const PricingConfiguration& config,
+                       std::map<InstrumentId,Result>&& instrumentMetrics) 
     {
-        const auto printRow = [](char fill,
-                                 auto positionId, 
-                                 auto instrumentId,
-                                 auto instrumentKind,
-                                 auto ccy,
-                                 auto pv) {
-            using namespace std;
-            cout << left << setw(10) << setfill(fill) << positionId     << " ";
-            cout << left << setw(12) << setfill(fill) << instrumentId   << " ";
-            cout << left << setw(18) << setfill(fill) << instrumentKind << " ";
-            cout << left << setw(10) << setfill(fill) << ccy            << " ";
-            cout << left << setw(11) << setfill(fill) << pv             << " ";
-            cout << '\n';
-        };
+        std::set<ResultKey> resultKeys;
+        for (const auto& [id,result] : instrumentMetrics) {
+            for (const auto& [key,value] : result)
+                resultKeys.insert(key);
+        }
 
-        printRow(' ', "PositionId", "InstrumentId", "InstrumentKind", "PVCurrency", "PV");
-        printRow('-', "", "", "", "", "");
+        Tabulator t;
+
+        t.addHeader({"PositionId"});
+        t.addHeader({"InstrumentId"});
+        t.addHeader({"InstrumentKind"});
+        t.addHeader({"Pricer"});
+        for (const auto& key : resultKeys)
+            t.addHeader(toStrings(key));
+        
         for (const auto& [positionId, position] : p.positions) {
-            const auto instrumentId = position.instrument;
-            const auto instrumentKind = name(p.instruments.at(instrumentId)->kind());
-            const auto& pv_ccy = [&instrumentPvs, &instrumentId]() -> 
-                std::optional<std::pair<double,Currency>> {
-                if (const auto i = instrumentPvs.find(instrumentId); i != instrumentPvs.end()) {
-                    const auto& result = i->second;
-                    assert(result.size() == 1);
-                    const auto& [key, value] = *result.cbegin();
-                    const auto pvKey = std::get<PVKey>(key);
-                    return std::pair{value,pvKey.ccy};
-                } else {
-                    return std::nullopt;
-                }
-            }();
-            if (pv_ccy) {
-                const auto& [instrumentPv,ccy] = *pv_ccy;
-                const auto positionPv = position.notional * instrumentPv;
-                printRow(' ', positionId, instrumentId, instrumentKind, name(ccy), positionPv);
-            } else {
-                printRow(' ', positionId, instrumentId, instrumentKind, "NA", "NA");
+            const auto& instrumentId = position.instrument;
+            const auto& notional = position.notional;
+            const auto& metrics = instrumentMetrics.at(instrumentId);
+
+            t.startRow();
+            t.addCell( std::to_string(positionId) );
+            t.addCell( std::to_string(instrumentId) );
+            t.addCell( name( p.instruments.at(instrumentId)->kind() ) );
+            t.addCell( name( config.pricerKind( *p.instruments.at(instrumentId) ) ) );
+
+            for (const auto& key : resultKeys) {
+                if (const auto i = metrics.find(key); i != metrics.end())
+                    t.addCell( std::to_string(notional * i->second) );
+                else
+                    t.addCell("");
             }
         }
+        t.output(std::cout);
     }
 }
 
 int main() {
     const auto p = getSamplePortfolio();
 
-    const auto metrics = std::vector<Metric> {Metric::PV};
+    const auto metrics = std::vector<Metric> {Metric::PV, Metric::IRDelta};
+    //const auto metrics = std::vector<Metric> {Metric::PV};
 
-    std::cout << "Using the S3 pricer:\n";
-    auto s3Pvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::S3},metrics);
-    outputPvs(p,s3Pvs);
-    std::cout << "\n";
-
-    std::cout << "Using the IR pricer:\n";
-    auto irPvs = PricingEngine::price(p.instruments,PricingConfiguration{PricerKind::IR},metrics);
-    outputPvs(p,irPvs);
-    std::cout << "\n";
+    for (const auto preferredPricer : { PricerKind::S3, PricerKind::IR }) {
+        std::cout << "Prefer the " << name(preferredPricer) << " pricer:\n";
+        const auto config = PricingConfiguration(preferredPricer);
+        auto results = PricingEngine::run(p.instruments,config,metrics);
+        outputMetrics(p,config,std::move(results));
+        std::cout << '\n';
+    }
 
     return 0;
 }

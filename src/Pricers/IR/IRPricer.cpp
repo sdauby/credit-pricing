@@ -163,15 +163,14 @@ std::vector<ModelId> IRPricer::requiredModels() const
     return modelIds;
 }
     
-ResultMap IRPricer::pvs(const ModelContainer& modelContainer) const 
+std::map<InstrumentId,PV> IRPricer::pvs(const ModelContainer& modelContainer) const 
 { 
-    ResultMap pvs;
+    std::map<InstrumentId,PV> pvs;
     for (const auto& [instrumentId,pricer] : unitPricers_) {
         const auto& irCurveId = pricer->requiredCurve();
         const auto* irCurve = modelContainer.get(irCurveId);
         assert(irCurve);
-        auto result = Result{ std::pair{ PVKey{irCurveId.ccy}, pricer->pv(*irCurve) } };
-        pvs.emplace(instrumentId,std::move(result));
+        pvs.emplace(instrumentId,PV{pricer->pv(*irCurve), irCurveId.ccy});
     }
     return pvs;
 }
