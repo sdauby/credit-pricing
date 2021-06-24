@@ -3,7 +3,7 @@
 #include <map>
 #include "Core/Currency.hpp"
 #include "Container/ModelId.hpp"
-#include "Instruments/Portfolio.hpp"
+#include "Container/InstrumentId.hpp"
 
 class Container;
 
@@ -16,5 +16,5 @@ class Pricer {
 public:
     virtual ~Pricer() = default;
     virtual std::vector<ModelId> requiredModels() const = 0;
-    virtual std::map<InstrumentId,PV> pvs(const Container& modelContainer) const = 0;
+    virtual std::map<InstrumentId,PV> pvs(const Container& container) const = 0;
 };

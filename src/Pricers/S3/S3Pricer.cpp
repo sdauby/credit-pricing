@@ -61,10 +61,10 @@ namespace {
 
 }
 
-S3Pricer::S3Pricer(const InstrumentMap& instruments, const std::vector<InstrumentId>& instrumentIds)
+S3Pricer::S3Pricer( const Container& container, const std::vector<InstrumentId>& instrumentIds)
 {
     for (const auto& instrumentId : instrumentIds) {
-        auto pricer = makeS3UnitPricer(*instruments.at(instrumentId));
+        auto pricer = makeS3UnitPricer(*container.get(instrumentId));
         s3ModelIds_.emplace(instrumentId,pricer->modelId());
         unitPricers_.emplace(instrumentId,std::move(pricer));
     }

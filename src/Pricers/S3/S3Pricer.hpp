@@ -10,9 +10,9 @@ public:
 
 class S3Pricer : public Pricer {
 public:
-    S3Pricer(const InstrumentMap& instruments, const std::vector<InstrumentId>& instrumentIds);
+    S3Pricer(const Container& container, const std::vector<InstrumentId>& instrumentIds);
     std::vector<ModelId> requiredModels() const override;
-    std::map<InstrumentId,PV> pvs(const Container& modelContainer) const override;
+    std::map<InstrumentId,PV> pvs(const Container& container) const override;
 
 private:
     std::map<InstrumentId,std::unique_ptr<const S3UnitPricer>> unitPricers_;

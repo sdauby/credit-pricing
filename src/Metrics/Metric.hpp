@@ -45,7 +45,7 @@ public:
 
     std::unique_ptr<Container> apply(const Container& modelContainer) const override 
     {
-        return std::make_unique<Container>(&modelContainer);
+        return std::make_unique<Container>(modelContainer);
     }
 };
     
@@ -61,7 +61,7 @@ public:
         const auto* irCurve = modelContainer.get(id_);
         assert(irCurve);
         auto mutatedCurve = irCurve->applyRateShift(rateShift_);
-        auto overlay = std::make_unique<Container>(&modelContainer);
+        auto overlay = std::make_unique<Container>(modelContainer);
         overlay->set(id_,std::move(mutatedCurve));
         return overlay;
     }

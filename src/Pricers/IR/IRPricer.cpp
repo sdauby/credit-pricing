@@ -142,10 +142,10 @@ namespace {
 
 }
 
-IRPricer::IRPricer(const InstrumentMap& instruments, const std::vector<InstrumentId>& instrumentIds) 
+IRPricer::IRPricer(const Container& container, const std::vector<InstrumentId>& instrumentIds) 
 {
     for (const auto& instrumentId : instrumentIds) {
-        auto pricer = makeIRUnitPricer(*instruments.at(instrumentId));
+        auto pricer = makeIRUnitPricer(*container.get(instrumentId));
         unitPricers_.emplace(instrumentId,std::move(pricer));
     }
 }
