@@ -1,26 +1,26 @@
 #pragma once
 #include <map>
 
-template<typename ModelIdT>
-using ModelType = typename ModelIdT::ModelType;
+template<typename ObjectIdT>
+using ObjectType = typename ObjectIdT::ObjectType;
 
-template<typename ModelIdT>
-using ModelPtr = std::unique_ptr<const typename ModelIdT::ModelType>;
+template<typename ObjectIdT>
+using ObjectPtr = std::unique_ptr<const typename ObjectIdT::ObjectType>;
 
-class ModelContainer final {
+class Container final {
 public:
-    ModelContainer();
-    explicit ModelContainer(const ModelContainer* baseContainer);
-    ~ModelContainer();
+    Container();
+    explicit Container(const Container* baseContainer);
+    ~Container();
 
-    template<typename ModelIdT>
-    const ModelType<ModelIdT>* get(const ModelIdT& id) const;
+    template<typename ObjectIdT>
+    const ObjectType<ObjectIdT>* get(const ObjectIdT& id) const;
 
-    template<typename ModelIdT>
-    void set(const ModelIdT& id, ModelPtr<ModelIdT>&& model);
+    template<typename ObjectIdT>
+    void set(const ObjectIdT& id, ObjectPtr<ObjectIdT>&& model);
 
-    template<typename ModelIdT>
-    std::vector<ModelIdT> modelIds() const;
+    template<typename ObjectIdT>
+    std::vector<ObjectIdT> ids() const;
 
 private:
     struct Impl;

@@ -8,7 +8,7 @@
 class S3Model;
 
 struct S3ModelId {
-    using ModelType = S3Model;
+    using ObjectType = S3Model;
     Issuer issuer;
     Currency ccy = {};
     std::vector<Date> tenorStructure;

@@ -156,14 +156,14 @@ std::vector<ModelId> IRPricer::requiredModels() const
     for (const auto& [instrumentId,pricer] : unitPricers_)
         irCurveIds.insert(pricer->requiredCurve());
     
-    std::vector<ModelId> modelIds;
-    modelIds.reserve(irCurveIds.size());
+    std::vector<ModelId> ids;
+    ids.reserve(irCurveIds.size());
     for (auto& irCurveId : irCurveIds)
-         modelIds.emplace_back(std::move(irCurveId));
-    return modelIds;
+         ids.emplace_back(std::move(irCurveId));
+    return ids;
 }
     
-std::map<InstrumentId,PV> IRPricer::pvs(const ModelContainer& modelContainer) const 
+std::map<InstrumentId,PV> IRPricer::pvs(const Container& modelContainer) const 
 { 
     std::map<InstrumentId,PV> pvs;
     for (const auto& [instrumentId,pricer] : unitPricers_) {

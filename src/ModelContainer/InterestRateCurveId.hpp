@@ -4,7 +4,7 @@
 class InterestRateCurve;
 
 struct InterestRateCurveId {
-    using ModelType = InterestRateCurve;
+    using ObjectType = InterestRateCurve;
     Currency ccy = {};
 };
 

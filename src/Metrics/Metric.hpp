@@ -19,7 +19,7 @@ public:
     MetricImpl& operator=(const MetricImpl&) = delete;
     
     virtual std::map<InstrumentId,Result> compute(const Pricer& pricer,
-                                                  const ModelContainer& modelContainer) const = 0;
+                                                  const Container& modelContainer) const = 0;
 };
 
 std::unique_ptr<MetricImpl> makeMetricImpl(Metric metric);
@@ -34,7 +34,7 @@ public:
     // The output modelContainer has a non-owning reference to the input modelContainer: the
     // caller must ensure that the lifetime of the input modelContainer is greater than the
     // lifetime of the output modelContainer.
-    virtual std::unique_ptr<ModelContainer> apply(const ModelContainer& modelContainer) const = 0;
+    virtual std::unique_ptr<Container> apply(const Container& modelContainer) const = 0;
 };
 
 using MutationPtr = std::unique_ptr<Mutation>;
@@ -43,9 +43,9 @@ class NullMutation : public Mutation {
 public:
     NullMutation() = default;
 
-    std::unique_ptr<ModelContainer> apply(const ModelContainer& modelContainer) const override 
+    std::unique_ptr<Container> apply(const Container& modelContainer) const override 
     {
-        return std::make_unique<ModelContainer>(&modelContainer);
+        return std::make_unique<Container>(&modelContainer);
     }
 };
     
@@ -56,12 +56,12 @@ public:
         rateShift_(rateShift)
     {}
 
-    std::unique_ptr<ModelContainer> apply(const ModelContainer& modelContainer) const override 
+    std::unique_ptr<Container> apply(const Container& modelContainer) const override 
     {
         const auto* irCurve = modelContainer.get(id_);
         assert(irCurve);
         auto mutatedCurve = irCurve->applyRateShift(rateShift_);
-        auto overlay = std::make_unique<ModelContainer>(&modelContainer);
+        auto overlay = std::make_unique<Container>(&modelContainer);
         overlay->set(id_,std::move(mutatedCurve));
         return overlay;
     }

@@ -5,7 +5,7 @@
 #include "ModelContainer/ModelId.hpp"
 #include "Instruments/Portfolio.hpp"
 
-class ModelContainer;
+class Container;
 
 struct PV {
     double value = {};
@@ -16,5 +16,5 @@ class Pricer {
 public:
     virtual ~Pricer() = default;
     virtual std::vector<ModelId> requiredModels() const = 0;
-    virtual std::map<InstrumentId,PV> pvs(const ModelContainer& modelContainer) const = 0;
+    virtual std::map<InstrumentId,PV> pvs(const Container& modelContainer) const = 0;
 };

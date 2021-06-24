@@ -22,7 +22,7 @@ namespace {
     template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
     template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-    const Model* get(const ModelContainer& modelContainer, const ModelId& modelId)
+    const Model* get(const Container& modelContainer, const ModelId& modelId)
     {
         return std::visit(overloaded {
             [&modelContainer](const InterestRateCurveId& irCurveId) -> const Model* {
@@ -40,7 +40,7 @@ namespace {
         , modelId);
     }
 
-    void set(ModelContainer& modelContainer, const ModelId& modelId, std::unique_ptr<Model>&& model)
+    void set(Container& modelContainer, const ModelId& modelId, std::unique_ptr<Model>&& model)
     {
         std::visit(
             [&modelContainer, model = std::move(model)](auto&& modelId) mutable {
@@ -69,7 +69,7 @@ namespace {
 }
 
 
-void populate(ModelContainer& modelContainer,
+void populate(Container& modelContainer,
               const ModelId& modelId,
               const ModelFactory& modelFactory)
 {
@@ -149,12 +149,12 @@ namespace {
 
 namespace {
 
-    template<typename ModelIdT>
-    std::unique_ptr<Model> make_(const ModelIdT& id, const ModelContainer& modelContainer);
+    template<typename ObjectIdT>
+    std::unique_ptr<Model> make_(const ObjectIdT& id, const Container& modelContainer);
 
     template<>
     std::unique_ptr<Model>
-    make_<InterestRateCurveId>(const InterestRateCurveId& irCurveId, const ModelContainer& modelContainer)
+    make_<InterestRateCurveId>(const InterestRateCurveId& irCurveId, const Container& modelContainer)
     {
         auto swapRates = { 0.02, 0.02, 0.02 };
         return makeIRCurve(swapRates);
@@ -162,7 +162,7 @@ namespace {
 
     template<>
     std::unique_ptr<Model>
-    make_<HazardRateCurveId>(const HazardRateCurveId& hrCurveId, const ModelContainer& modelContainer)
+    make_<HazardRateCurveId>(const HazardRateCurveId& hrCurveId, const Container& modelContainer)
     {
         double lambda = [&issuer = hrCurveId.issuer, ccy = hrCurveId.ccy]() {
             using Ccy = Currency;
@@ -181,7 +181,7 @@ namespace {
 
     template<>
     std::unique_ptr<Model>
-    make_<S3ModelId>(const S3ModelId& s3ModelId, const ModelContainer& modelContainer)
+    make_<S3ModelId>(const S3ModelId& s3ModelId, const Container& modelContainer)
     {
         const auto ccy = s3ModelId.ccy;
         const auto& issuer = s3ModelId.issuer;
@@ -208,7 +208,7 @@ namespace {
     } 
 }
 
-std::unique_ptr<Model> ModelFactory::make(const ModelId& modelId, const ModelContainer& modelContainer) const
+std::unique_ptr<Model> ModelFactory::make(const ModelId& modelId, const Container& modelContainer) const
 {
     return std::visit(
         [&modelContainer] (auto&& id) {

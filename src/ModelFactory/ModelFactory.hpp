@@ -7,9 +7,9 @@ class Model;
 class ModelFactory {
 public:
     std::vector<ModelId> precedents(const ModelId& modelId) const;
-    std::unique_ptr<Model> make(const ModelId& modelId, const ModelContainer& modelContainer) const;
+    std::unique_ptr<Model> make(const ModelId& modelId, const Container& modelContainer) const;
 };
 
-void populate(ModelContainer& modelContainer,
+void populate(Container& modelContainer,
               const ModelId& modelId,
               const ModelFactory& modelFactory);

@@ -6,7 +6,7 @@
 class HazardRateCurve;
 
 struct HazardRateCurveId {
-    using ModelType = HazardRateCurve;
+    using ObjectType = HazardRateCurve;
     Issuer issuer;
     Currency ccy = {};
 };

@@ -2,10 +2,10 @@
 #include <iostream>
 
 std::map<InstrumentId,Result> IRDeltaImpl::compute(const Pricer& pricer,
-                                                   const ModelContainer& modelContainer) const
+                                                   const Container& modelContainer) const
 {
     std::map<InstrumentId,Result> results;
-    for (const auto& curveId : modelContainer.modelIds<InterestRateCurveId>()) {
+    for (const auto& curveId : modelContainer.ids<InterestRateCurveId>()) {
         constexpr auto shiftSize = 1e-8;
         constexpr auto shifts = std::array{+shiftSize,-shiftSize};
         std::array<std::map<InstrumentId,PV>,2> pvs;

@@ -77,14 +77,14 @@ std::vector<ModelId> S3Pricer::requiredModels() const
     for (const auto& [instrumentId,s3ModelId] : s3ModelIds_)
         s3ModelIds.insert(s3ModelId);
     
-    std::vector<ModelId> modelIds;
-    modelIds.reserve(s3ModelIds.size());
+    std::vector<ModelId> ids;
+    ids.reserve(s3ModelIds.size());
     for (auto& s3ModelId : s3ModelIds)
-         modelIds.emplace_back(std::move(s3ModelId));
-    return modelIds;
+         ids.emplace_back(std::move(s3ModelId));
+    return ids;
 }
 
-std::map<InstrumentId,PV> S3Pricer::pvs(const ModelContainer& modelContainer) const 
+std::map<InstrumentId,PV> S3Pricer::pvs(const Container& modelContainer) const 
 {
     std::map<InstrumentId,PV> instrumentPvs;
     for (const auto& [instrumentId,unitPricer] : unitPricers_) {

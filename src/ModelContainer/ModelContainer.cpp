@@ -1,5 +1,4 @@
 #include "ModelContainer.hpp"
-#include "Core/Data.hpp"
 #include "InterestRateCurveId.hpp"
 #include "HazardRateCurveId.hpp"
 #include "S3ModelId.hpp"
@@ -10,35 +9,35 @@
 
 namespace {
 
-    template<typename ModelIdT>
-    using ModelMap = std::map<ModelIdT,ModelPtr<ModelIdT>>;
+    template<typename ObjectIdT>
+    using ObjectMap = std::map<ObjectIdT,ObjectPtr<ObjectIdT>>;
 
 }
 
-struct ModelContainer::Impl {
+struct Container::Impl {
     std::tuple<
-        ModelMap<InterestRateCurveId>,
-        ModelMap<HazardRateCurveId>,
-        ModelMap<S3ModelId>
-    > models;
-    const ModelContainer* baseContainer = nullptr;
+        ObjectMap<InterestRateCurveId>,
+        ObjectMap<HazardRateCurveId>,
+        ObjectMap<S3ModelId>
+    > objects;
+    const Container* baseContainer = nullptr;
 };
 
-ModelContainer::ModelContainer() : pImpl(std::make_unique<Impl>()) {}
+Container::Container() : pImpl(std::make_unique<Impl>()) {}
 
-ModelContainer::ModelContainer(const ModelContainer* baseContainer) : ModelContainer()
+Container::Container(const Container* baseContainer) : Container()
 {
     pImpl->baseContainer = baseContainer;
 }
 
-ModelContainer::~ModelContainer() = default;
+Container::~Container() = default;
 
-template<typename ModelIdT>
-const ModelType<ModelIdT>* ModelContainer::get(const ModelIdT& id) const
+template<typename ObjectIdT>
+const ObjectType<ObjectIdT>* Container::get(const ObjectIdT& id) const
 {
-    const auto& modelMap = std::get<ModelMap<ModelIdT>>(pImpl->models);
-    const auto& i = modelMap.find(id);
-    if (i==modelMap.end()) {
+    const auto& objectMap = std::get<ObjectMap<ObjectIdT>>(pImpl->objects);
+    const auto& i = objectMap.find(id);
+    if (i==objectMap.end()) {
         if (pImpl->baseContainer)
             return pImpl->baseContainer->get(id);
         else
@@ -48,36 +47,36 @@ const ModelType<ModelIdT>* ModelContainer::get(const ModelIdT& id) const
     }
 }
 
-template const ModelType<InterestRateCurveId>* ModelContainer::get(const InterestRateCurveId& id) const;
-template const ModelType<HazardRateCurveId>* ModelContainer::get(const HazardRateCurveId& id) const;
-template const ModelType<S3ModelId>* ModelContainer::get(const S3ModelId& id) const;
+template const ObjectType<InterestRateCurveId>* Container::get(const InterestRateCurveId& id) const;
+template const ObjectType<HazardRateCurveId>* Container::get(const HazardRateCurveId& id) const;
+template const ObjectType<S3ModelId>* Container::get(const S3ModelId& id) const;
 
-template<typename ModelIdT>
-void ModelContainer::set(const ModelIdT& id, ModelPtr<ModelIdT>&& model)
+template<typename ObjectIdT>
+void Container::set(const ObjectIdT& id, ObjectPtr<ObjectIdT>&& object)
 {
-    auto& modelMap = std::get<ModelMap<ModelIdT>>(pImpl->models);
-    auto node = std::pair{id,std::move(model)};
-    modelMap.emplace(std::move(node));
+    auto& objectMap = std::get<ObjectMap<ObjectIdT>>(pImpl->objects);
+    auto node = std::pair{id,std::move(object)};
+    objectMap.emplace(std::move(node));
 }
 
-template void ModelContainer::set(const InterestRateCurveId& id, ModelPtr<InterestRateCurveId>&& model);
-template void ModelContainer::set(const HazardRateCurveId& id, ModelPtr<HazardRateCurveId>&& model);
-template void ModelContainer::set(const S3ModelId& id, ModelPtr<S3ModelId>&& model);
+template void Container::set(const InterestRateCurveId& id, ObjectPtr<InterestRateCurveId>&& object);
+template void Container::set(const HazardRateCurveId& id, ObjectPtr<HazardRateCurveId>&& object);
+template void Container::set(const S3ModelId& id, ObjectPtr<S3ModelId>&& object);
 
-template<typename ModelIdT>
-std::vector<ModelIdT> ModelContainer::modelIds() const
+template<typename ObjectIdT>
+std::vector<ObjectIdT> Container::ids() const
 {
-    std::set<ModelIdT> modelIds;
-    const auto& modelMap = std::get<ModelMap<ModelIdT>>(pImpl->models);
-    for (const auto& [modelId, model] : modelMap)
-        modelIds.insert(modelId);
+    std::set<ObjectIdT> ids;
+    const auto& objectMap = std::get<ObjectMap<ObjectIdT>>(pImpl->objects);
+    for (const auto& [id, object] : objectMap)
+        ids.insert(id);
     if (pImpl->baseContainer) {
-        const auto baseContainerModelIds = pImpl->baseContainer->modelIds<ModelIdT>();
-        modelIds.insert(baseContainerModelIds.cbegin(),baseContainerModelIds.cend());
+        const auto baseContainerIds = pImpl->baseContainer->ids<ObjectIdT>();
+        ids.insert(baseContainerIds.cbegin(),baseContainerIds.cend());
     }
-    return std::vector<ModelIdT>(modelIds.begin(),modelIds.end());
+    return std::vector<ObjectIdT>(ids.begin(),ids.end());
 }
 
-template std::vector<InterestRateCurveId> ModelContainer::modelIds() const;
-template std::vector<HazardRateCurveId> ModelContainer::modelIds() const;
-template std::vector<S3ModelId> ModelContainer::modelIds() const;
+template std::vector<InterestRateCurveId> Container::ids() const;
+template std::vector<HazardRateCurveId> Container::ids() const;
+template std::vector<S3ModelId> Container::ids() const;

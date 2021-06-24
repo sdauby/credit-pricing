@@ -1,7 +1,7 @@
 #include "PVImpl.hpp"
 
 std::map<InstrumentId,Result> PVImpl::compute(const Pricer& pricer,
-                                              const ModelContainer& modelContainer) const
+                                              const Container& modelContainer) const
 {
     const auto pvs = pricer.pvs(modelContainer);
     std::map<InstrumentId,Result> results;

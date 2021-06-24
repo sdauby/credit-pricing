@@ -42,7 +42,7 @@ namespace PricingEngine {
     {
         const auto pricers = makePricers(instruments,config);
 
-        ModelContainer modelContainer;
+        Container modelContainer;
         ModelFactory modelFactory;
         for (const auto& pricer : pricers) {
             for (const auto& modelId : pricer->requiredModels())
