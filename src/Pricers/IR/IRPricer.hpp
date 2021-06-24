@@ -1,6 +1,6 @@
 #pragma once
 #include "Pricers/Pricer.hpp"
-#include "ModelContainer/InterestRateCurveId.hpp"
+#include "Container/InterestRateCurveId.hpp"
 
 class IRUnitPricer {
 public:

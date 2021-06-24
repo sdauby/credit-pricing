@@ -5,8 +5,8 @@
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
-#include "ModelContainer/ModelContainer.hpp"
-#include "ModelContainer/InterestRateCurveId.hpp"
+#include "Container/Container.hpp"
+#include "Container/InterestRateCurveId.hpp"
 #include <set>
 
 namespace {

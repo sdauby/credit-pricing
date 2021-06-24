@@ -2,7 +2,7 @@
 #include <vector>
 #include <map>
 #include "Core/Currency.hpp"
-#include "ModelContainer/ModelId.hpp"
+#include "Container/ModelId.hpp"
 #include "Instruments/Portfolio.hpp"
 
 class Container;

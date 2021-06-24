@@ -1,7 +1,7 @@
 #include "FixedCouponBondPricing.hpp"
 #include "Models/S3/S3Model.hpp"
 #include "Models/S3/Utilities.hpp"
-#include "ModelContainer/S3ModelId.hpp"
+#include "Container/S3ModelId.hpp"
 
 S3ModelId modelId(const FixedCouponBond& bond) 
 {

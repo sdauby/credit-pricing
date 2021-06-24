@@ -3,9 +3,9 @@
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Models/S3/S3Model.hpp"
-#include "ModelContainer/InterestRateCurveId.hpp"
-#include "ModelContainer/HazardRateCurveId.hpp"
-#include "ModelContainer/S3ModelId.hpp"
+#include "Container/InterestRateCurveId.hpp"
+#include "Container/HazardRateCurveId.hpp"
+#include "Container/S3ModelId.hpp"
 #include "Core/Data.hpp"
 
 #include <chrono>

@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "Core/Currency.hpp"
-#include "ModelContainer/InterestRateCurveId.hpp"
+#include "Container/InterestRateCurveId.hpp"
 
 struct PVKey {
     Currency ccy;
