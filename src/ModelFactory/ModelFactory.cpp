@@ -46,19 +46,19 @@ namespace {
             [&modelContainer, model = std::move(model)](auto&& modelId) mutable {
                 using T = std::decay_t<decltype(modelId)>;
                 if constexpr (std::is_same_v<T, InterestRateCurveId>) {
-                    const auto* model_ = model.release();
-                    const auto* irCurve = dynamic_cast<const InterestRateCurve*>(model_);
-                    auto irCurve_ = std::unique_ptr<const InterestRateCurve>(irCurve);
+                    auto* model_ = model.release();
+                    auto* irCurve = dynamic_cast<InterestRateCurve*>(model_);
+                    auto irCurve_ = std::unique_ptr<InterestRateCurve>(irCurve);
                     modelContainer.set(modelId, std::move(irCurve_));
                 } else if constexpr (std::is_same_v<T, HazardRateCurveId>) {
-                    const auto* model_ = model.release();
-                    const auto* hrCurve = dynamic_cast<const HazardRateCurve*>(model_);
-                    auto hrCurve_ = std::unique_ptr<const HazardRateCurve>(hrCurve);
+                    auto* model_ = model.release();
+                    auto* hrCurve = dynamic_cast<HazardRateCurve*>(model_);
+                    auto hrCurve_ = std::unique_ptr<HazardRateCurve>(hrCurve);
                     modelContainer.set(modelId, std::move(hrCurve_));
                 } else if constexpr (std::is_same_v<T, S3ModelId>) {
-                    const auto* model_ = model.release();
-                    const auto* s3Model = dynamic_cast<const S3Model*>(model_);
-                    auto s3Model_ = std::unique_ptr<const S3Model>(s3Model);
+                    auto* model_ = model.release();
+                    auto* s3Model = dynamic_cast<S3Model*>(model_);
+                    auto s3Model_ = std::unique_ptr<S3Model>(s3Model);
                     modelContainer.set(modelId, std::move(s3Model_));
                 } else {
                     static_assert(always_false_v<T>, "non-exhaustive visitor");
