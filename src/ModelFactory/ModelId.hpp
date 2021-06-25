@@ -1,8 +1,8 @@
 #pragma once
 #include <variant>
-#include "InterestRateCurveId.hpp"
-#include "HazardRateCurveId.hpp"
-#include "S3ModelId.hpp"
+#include "Container/InterestRateCurveId.hpp"
+#include "Container/HazardRateCurveId.hpp"
+#include "Container/S3ModelId.hpp"
 
 using ModelId = std::variant<
     InterestRateCurveId,

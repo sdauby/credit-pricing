@@ -1,6 +1,6 @@
 #pragma once
 #include "Container/Container.hpp"
-#include "Container/ModelId.hpp"
+#include "ModelId.hpp"
 
 class Model;
 
