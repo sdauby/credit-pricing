@@ -9,7 +9,6 @@
 #include "Instruments/FixedCouponBond.hpp"
 #include "Instruments/FloatingCouponBond.hpp"
 #include "Instruments/IRSwap.hpp"
-#include "ModelFactory/ModelFactory.hpp"
 #include "Metrics/Metric.hpp"
 #include "Metrics/Result.hpp"
 #include "Pricers/PricingConfiguration.hpp"

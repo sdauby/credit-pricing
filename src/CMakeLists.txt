@@ -18,7 +18,6 @@ Models/InterestRateCurve/IRSwapAnalytics.cpp
 Models/InterestRateCurve/IRCurveCalibration.cpp
 Models/S3/S3Model.cpp
 Models/S3/Utilities.cpp
-ModelFactory/ModelFactory.cpp
 Pricers/IR/IRPricer.cpp
 Pricers/S3/CdsPricing.cpp
 Pricers/S3/FixedCouponBondPricing.cpp

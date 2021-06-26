@@ -9,7 +9,6 @@
 #include "Container/Container.hpp"
 #include "Container/PricerId.hpp"
 #include "Factory/Factory.hpp"
-#include "ModelFactory/ModelFactory.hpp"
 #include "Pricers/Pricer.hpp"
 #include "Pricers/IR/IRPricer.hpp"
 #include "Pricers/S3/S3Pricer.hpp"
