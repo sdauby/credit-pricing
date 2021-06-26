@@ -24,12 +24,13 @@ Pricers/S3/CdsPricing.cpp
 Pricers/S3/FixedCouponBondPricing.cpp
 Pricers/S3/FloatingCouponBondPricing.cpp
 Pricers/S3/S3Pricer.cpp
+Pricers/PricingConfiguration.cpp
 Container/Container.cpp
+Factory/Factory.cpp
 Metrics/Metric.cpp
 Metrics/PVImpl.cpp
 Metrics/IRDeltaImpl.cpp
 Metrics/Result.cpp
-PricingEngine/PricingConfiguration.cpp
 PricingEngine/PricingEngine.cpp
 main.cpp
 )

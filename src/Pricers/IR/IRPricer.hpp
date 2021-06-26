@@ -1,6 +1,5 @@
 #pragma once
 #include "Pricers/Pricer.hpp"
-#include "Container/InterestRateCurveId.hpp"
 
 class IRUnitPricer {
 public:
@@ -12,7 +11,7 @@ public:
 class IRPricer : public Pricer {
 public:
     IRPricer(const Container& container, const std::vector<InstrumentId>& instrumentIds);
-    std::vector<ModelId> requiredModels() const override;    
+    std::vector<VariantId> requiredModels() const override;    
     std::map<InstrumentId,PV> pvs(const Container& container) const override;
 private:
     std::map<InstrumentId,std::unique_ptr<const IRUnitPricer>> unitPricers_;

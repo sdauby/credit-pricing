@@ -4,44 +4,48 @@
 #include <set>
 #include "Instruments/Instrument.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
+#include "Models/HazardRateCurve/HazardRateCurve.hpp"
+#include "Models/S3/S3Model.hpp"
 #include "Container/Container.hpp"
 #include "Container/PricerId.hpp"
+#include "Factory/Factory.hpp"
 #include "ModelFactory/ModelFactory.hpp"
 #include "Pricers/Pricer.hpp"
 #include "Pricers/IR/IRPricer.hpp"
 #include "Pricers/S3/S3Pricer.hpp"
-#include "PricingConfiguration.hpp"
+#include "Pricers/PricingConfiguration.hpp"
+
 
 namespace {
 
-    Container makeBaseState(const Container& instruments,
-                            const PricingConfiguration& config)
+    template<typename IdT>
+    void populate (Container& container, const IdT& id, const Factory& factory) {
+        const auto precedents = factory.getPrecedents(id,container);
+        for (const auto& precedent : precedents) {
+            std::visit(
+                [&container,&factory] (const auto& prec) {
+                    if (!container.get(prec))
+                        populate(container,prec,factory);
+                    assert(container.get(prec));
+                },
+                precedent);
+        }
+        container.set(id,factory.make(id,container));
+    };
+
+    Container initializeContainer(const Container& instruments,
+                             const PricingConfiguration& config)
     {
-        Container baseState(instruments);
+        Container container(instruments);
+        const Factory factory(config);
 
-        std::vector<InstrumentId> pricedWithIR;
-        std::vector<InstrumentId> pricedWithS3;
-        for (const auto& id : instruments.ids<InstrumentId>()) {
-            switch ( config.pricerKind( *instruments.get(id) ) ) {
-                case PricerKind::IR: pricedWithIR.emplace_back(id); break;
-                case PricerKind::S3: pricedWithS3.emplace_back(id); break;
-            }
-        }
-        auto irPricer = std::make_unique<IRPricer>(instruments, pricedWithIR);
-        auto s3Pricer = std::make_unique<S3Pricer>(instruments, pricedWithS3);
-        std::array<std::unique_ptr<Pricer>,2> pricers{std::move(irPricer),std::move(s3Pricer)};
-
-        ModelFactory modelFactory;
-        for (const auto& pricer : pricers) {
-            for (const auto& modelId : pricer->requiredModels())
-                populate(baseState,modelId,modelFactory);
-        }
-
-        for (size_t k=0, n=pricers.size(); k<n; ++k)
-            baseState.set(PricerId{k},std::move(pricers[k]));
-
-        return baseState;
+        std::vector<PricerId> pricerIds{ PricerId{PricerKind::IR}, PricerId{PricerKind::S3} };
+        for (const auto& id : pricerIds)
+            populate(container,id,factory);
+        
+        return container;
     }
+
 }
 
 namespace PricingEngine {
@@ -50,7 +54,7 @@ namespace PricingEngine {
                                       const PricingConfiguration& config,
                                       const std::vector<Metric>& metrics)
     {
-        Container baseState = makeBaseState(instruments,config);
+        Container baseState = initializeContainer(instruments,config);
 
         std::map<InstrumentId,Result> results;
         for (const auto& pricerId : baseState.ids<PricerId>()) {

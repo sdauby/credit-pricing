@@ -71,13 +71,13 @@ S3Pricer::S3Pricer( const Container& container, const std::vector<InstrumentId>&
     aggregateTenorStructures(s3ModelIds_);
 }
 
-std::vector<ModelId> S3Pricer::requiredModels() const
+std::vector<VariantId> S3Pricer::requiredModels() const
 {
     std::set<S3ModelId> s3ModelIds;
     for (const auto& [instrumentId,s3ModelId] : s3ModelIds_)
         s3ModelIds.insert(s3ModelId);
     
-    std::vector<ModelId> ids;
+    std::vector<VariantId> ids;
     ids.reserve(s3ModelIds.size());
     for (auto& s3ModelId : s3ModelIds)
          ids.emplace_back(std::move(s3ModelId));

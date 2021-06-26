@@ -12,7 +12,7 @@
 #include "ModelFactory/ModelFactory.hpp"
 #include "Metrics/Metric.hpp"
 #include "Metrics/Result.hpp"
-#include "PricingEngine/PricingConfiguration.hpp"
+#include "Pricers/PricingConfiguration.hpp"
 #include "PricingEngine/Portfolio.hpp"
 #include "PricingEngine/PricingEngine.hpp"
 

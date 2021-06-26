@@ -1,16 +1,17 @@
 #pragma once
 
 class Pricer;
+enum class PricerKind;
 
 struct PricerId {
     using ObjectType = Pricer;
-    size_t k = {};
+    PricerKind kind = {};
 };
 
 inline bool operator<(const PricerId& x, 
                       const PricerId& y)
 {
-    return x.k < y.k;
+    return x.kind < y.kind;
 }
 
 inline bool operator==(const PricerId& x, const PricerId& y)

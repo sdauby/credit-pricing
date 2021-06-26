@@ -150,13 +150,13 @@ IRPricer::IRPricer(const Container& container, const std::vector<InstrumentId>& 
     }
 }
 
-std::vector<ModelId> IRPricer::requiredModels() const
+std::vector<VariantId> IRPricer::requiredModels() const
 { 
     std::set<InterestRateCurveId> irCurveIds;
     for (const auto& [instrumentId,pricer] : unitPricers_)
         irCurveIds.insert(pricer->requiredCurve());
     
-    std::vector<ModelId> ids;
+    std::vector<VariantId> ids;
     ids.reserve(irCurveIds.size());
     for (auto& irCurveId : irCurveIds)
          ids.emplace_back(std::move(irCurveId));

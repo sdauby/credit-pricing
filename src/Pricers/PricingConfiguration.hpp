@@ -1,16 +1,7 @@
 #pragma once
+#include "Pricers/PricerKind.hpp"
+
 class Instrument;
-
-enum class PricerKind { IR, S3 };
-
-constexpr const char* name(PricerKind kind)
-{
-    switch (kind) {
-        case PricerKind::IR: return "IR";
-        case PricerKind::S3: return "S3";
-    }
-}
-
 
 class PricingConfiguration final {
 public:
