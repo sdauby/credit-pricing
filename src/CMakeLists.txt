@@ -26,6 +26,10 @@ Pricers/S3/S3Pricer.cpp
 Pricers/PricingConfiguration.cpp
 Container/Container.cpp
 Factory/Factory.cpp
+Factory/Factory_Instrument.cpp
+Factory/Factory_InterestRateCurve.cpp
+Factory/Factory_HazardRateCurve.cpp
+Factory/Factory_S3Model.cpp
 Metrics/Metric.cpp
 Metrics/PVImpl.cpp
 Metrics/IRDeltaImpl.cpp
