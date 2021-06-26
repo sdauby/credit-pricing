@@ -1,15 +1,15 @@
-#include "Factory.hpp"
+#include "HazardRateCurveSubFactory.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Core/Data.hpp"
 
-template<>
-std::vector<VariantId> Factory::getPrecedents(const HazardRateCurveId&, const Container&) const
+std::vector<VariantId> 
+HazardRateCurveSubFactory::getPrecedents(const HazardRateCurveId& hrCurveId, const Container& container) const
 {
     return {};
 }
 
-template<>
-std::unique_ptr<HazardRateCurve> Factory::make(const HazardRateCurveId& hrCurveId, const Container& container) const
+std::unique_ptr<HazardRateCurve> 
+HazardRateCurveSubFactory::make(const HazardRateCurveId& hrCurveId, const Container& container) const
 {
     double lambda = [&issuer = hrCurveId.issuer, ccy = hrCurveId.ccy]() {
         using Ccy = Currency;

@@ -1,11 +1,10 @@
-#include "Factory.hpp"
+#include "S3ModelSubFactory.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/S3/S3Model.hpp"
 #include "Core/Data.hpp"
 
-template<>
-std::vector<VariantId> Factory::getPrecedents(const S3ModelId& s3ModelId, const Container&) const
+std::vector<VariantId> S3ModelSubFactory::getPrecedents(const S3ModelId& s3ModelId, const Container& container) const
 {
     const auto ccy = s3ModelId.ccy;
     const auto& issuer = s3ModelId.issuer;
@@ -16,8 +15,7 @@ std::vector<VariantId> Factory::getPrecedents(const S3ModelId& s3ModelId, const 
     return { irCurveId, hrCurveId };
 }
 
-template<> 
-std::unique_ptr<S3Model> Factory::make(const S3ModelId& s3ModelId, const Container& container) const
+std::unique_ptr<S3Model> S3ModelSubFactory::make(const S3ModelId& s3ModelId, const Container& container) const
 {
     const auto ccy = s3ModelId.ccy;
     const auto& issuer = s3ModelId.issuer;

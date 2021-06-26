@@ -9,11 +9,15 @@
 #include "Container/Container.hpp"
 #include "Container/PricerId.hpp"
 #include "Factory/Factory.hpp"
+#include "Factory/PricerSubFactory.hpp"
+#include "Factory/InstrumentSubFactory.hpp"
+#include "Factory/HazardRateCurveSubFactory.hpp"
+#include "Factory/InterestRateCurveSubFactory.hpp"
+#include "Factory/S3ModelSubFactory.hpp"
 #include "Pricers/Pricer.hpp"
 #include "Pricers/IR/IRPricer.hpp"
 #include "Pricers/S3/S3Pricer.hpp"
 #include "Pricers/PricingConfiguration.hpp"
-
 
 namespace {
 
@@ -33,10 +37,16 @@ namespace {
     };
 
     Container initializeContainer(const Container& instruments,
-                             const PricingConfiguration& config)
+                                  const PricingConfiguration& config)
     {
         Container container(instruments);
-        const Factory factory(config);
+
+        Factory factory;
+        factory.setSubFactory<PricerId           >(std::make_unique<PricerSubFactory>(config));
+        factory.setSubFactory<InstrumentId       >(std::make_unique<InstrumentSubFactory>());
+        factory.setSubFactory<HazardRateCurveId  >(std::make_unique<HazardRateCurveSubFactory>());
+        factory.setSubFactory<InterestRateCurveId>(std::make_unique<InterestRateCurveSubFactory>());
+        factory.setSubFactory<S3ModelId          >(std::make_unique<S3ModelSubFactory>());
 
         std::vector<PricerId> pricerIds{ PricerId{PricerKind::IR}, PricerId{PricerKind::S3} };
         for (const auto& id : pricerIds)

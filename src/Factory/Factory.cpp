@@ -1,53 +1,49 @@
 #include "Factory.hpp"
-#include "Pricers/PricerKind.hpp"
-#include "Pricers/PricingConfiguration.hpp"
-#include "Pricers/IR/IRPricer.hpp"
-#include "Pricers/S3/S3Pricer.hpp"
+#include "Pricers/Pricer.hpp"
+#include "Instruments/Instrument.hpp"
+#include "Models/HazardRateCurve/HazardRateCurve.hpp"
+#include "Models/InterestRateCurve/InterestRateCurve.hpp"
+#include "Models/S3/S3Model.hpp"
 
+namespace {
+    template <typename IdT>
+    using SubFactoryPtr = std::unique_ptr<SubFactory<IdT>>;
+}
 
 struct Factory::Impl {
-    explicit Impl(const PricingConfiguration& config) : config(config) {}
-    const PricingConfiguration& config;
+    std::tuple<
+        SubFactoryPtr<PricerId           >,
+        SubFactoryPtr<InstrumentId       >,
+        SubFactoryPtr<HazardRateCurveId  >,
+        SubFactoryPtr<InterestRateCurveId>,
+        SubFactoryPtr<S3ModelId          >
+    > subFactories;
 };
 
 Factory::~Factory() = default;
-Factory::Factory(const PricingConfiguration& config) : pImpl(std::make_unique<Impl>(config)) {}
+Factory::Factory() : pImpl(std::make_unique<Impl>()) {}
 
-
-template<> 
-std::vector<VariantId> Factory::getPrecedents(const PricerId& pricerId, const Container& container) const
+template<typename IdT>
+void Factory::setSubFactory(std::unique_ptr<SubFactory<IdT>> subFactory)
 {
-    std::vector<VariantId> precedents;
-    std::vector<InstrumentId> instruments;
-    for (const auto& instrumentId : container.ids<InstrumentId>()) {
-        if ( pImpl->config.pricerKind( *container.get(instrumentId) ) == pricerId.kind ) {
-            instruments.emplace_back(instrumentId);
-            precedents.emplace_back(instrumentId);
-        }
-    }
-    
-    auto modelIds = [&] () {
-        switch (pricerId.kind) {
-            case PricerKind::IR: return IRPricer(container,instruments).requiredModels();
-            case PricerKind::S3: return S3Pricer(container,instruments).requiredModels();
-        }
-    } ();
-    std::move(modelIds.begin(),modelIds.end(),std::back_inserter(precedents));
-
-    return precedents;
+    std::get<SubFactoryPtr<IdT>>(pImpl->subFactories) = std::move(subFactory);
 }
 
-template<>
-std::unique_ptr<Object<PricerId>> Factory::make(const PricerId& pricerId, const Container& container) const
+template<typename IdT>
+const SubFactory<IdT>& Factory::subFactory() const
 {
-    std::vector<InstrumentId> instruments;
-    for (const auto& instrumentId : container.ids<InstrumentId>()) {
-        if ( pImpl->config.pricerKind( *container.get(instrumentId) ) == pricerId.kind ) 
-            instruments.emplace_back(instrumentId);
-    }
-
-    switch (pricerId.kind) {
-        case PricerKind::IR: return std::make_unique<IRPricer>(container,instruments);
-        case PricerKind::S3: return std::make_unique<S3Pricer>(container,instruments);
-    }
+    return *std::get<SubFactoryPtr<IdT>>(pImpl->subFactories);
 }
+
+template void Factory::setSubFactory(std::unique_ptr<SubFactory<PricerId           >> subFactory);
+template void Factory::setSubFactory(std::unique_ptr<SubFactory<InstrumentId       >> subFactory);
+template void Factory::setSubFactory(std::unique_ptr<SubFactory<HazardRateCurveId  >> subFactory);
+template void Factory::setSubFactory(std::unique_ptr<SubFactory<InterestRateCurveId>> subFactory);
+template void Factory::setSubFactory(std::unique_ptr<SubFactory<S3ModelId          >> subFactory);
+
+template const SubFactory<PricerId           >& Factory::subFactory() const;
+template const SubFactory<InstrumentId       >& Factory::subFactory() const;
+template const SubFactory<HazardRateCurveId  >& Factory::subFactory() const;
+template const SubFactory<InterestRateCurveId>& Factory::subFactory() const;
+template const SubFactory<S3ModelId          >& Factory::subFactory() const;
+

@@ -1,12 +1,12 @@
-#include "Factory.hpp"
+#include "InterestRateCurveSubFactory.hpp"
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/InterestRateCurve/IRCurveCalibration.hpp"
 #include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
 #include <cmath>
 
-template<>
-std::vector<VariantId> Factory::getPrecedents(const InterestRateCurveId&, const Container&) const
+std::vector<VariantId> 
+InterestRateCurveSubFactory::getPrecedents(const IdType& irCurveId, const Container& container) const
 {
     return {};
 }
@@ -52,8 +52,8 @@ namespace {
     }
 }
 
-template<> 
-std::unique_ptr<InterestRateCurve> Factory::make(const InterestRateCurveId& irCurveId, const Container& container) const
+std::unique_ptr<InterestRateCurve> 
+InterestRateCurveSubFactory::make(const IdType& irCurveId, const Container& container) const
 {
     auto swapRates = { 0.02, 0.02, 0.02 };
     return makeIRCurve(swapRates);
