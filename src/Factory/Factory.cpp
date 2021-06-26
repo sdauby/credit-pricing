@@ -12,7 +12,14 @@
 #include "Models/S3/S3Model.hpp"
 #include <cmath>
 
-Factory::Factory(const PricingConfiguration& config) : config_(config) {}
+
+struct Factory::Impl {
+    explicit Impl(const PricingConfiguration& config) : config(config) {}
+    const PricingConfiguration& config;
+};
+
+Factory::~Factory() = default;
+Factory::Factory(const PricingConfiguration& config) : pImpl(std::make_unique<Impl>(config)) {}
 
 template<>
 std::vector<VariantId> Factory::getPrecedents(const InstrumentId&, const Container&) const
@@ -33,7 +40,7 @@ std::vector<VariantId> Factory::getPrecedents(const PricerId& pricerId, const Co
     std::vector<VariantId> precedents;
     std::vector<InstrumentId> instruments;
     for (const auto& instrumentId : container.ids<InstrumentId>()) {
-        if ( config_.pricerKind( *container.get(instrumentId) ) == pricerId.kind ) {
+        if ( pImpl->config.pricerKind( *container.get(instrumentId) ) == pricerId.kind ) {
             instruments.emplace_back(instrumentId);
             precedents.emplace_back(instrumentId);
         }
@@ -55,7 +62,7 @@ std::unique_ptr<Object<PricerId>> Factory::make(const PricerId& pricerId, const 
 {
     std::vector<InstrumentId> instruments;
     for (const auto& instrumentId : container.ids<InstrumentId>()) {
-        if ( config_.pricerKind( *container.get(instrumentId) ) == pricerId.kind ) 
+        if ( pImpl->config.pricerKind( *container.get(instrumentId) ) == pricerId.kind ) 
             instruments.emplace_back(instrumentId);
     }
 

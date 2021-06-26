@@ -7,6 +7,7 @@ class PricingConfiguration;
 
 class Factory final {
 public: 
+    ~Factory();
     explicit Factory(const PricingConfiguration& config);
 
     template<typename IdT>
@@ -15,5 +16,6 @@ public:
     template<typename IdT>
     std::unique_ptr<Object<IdT>> make(const IdT& id, const Container& container) const;
 private:
-    const PricingConfiguration& config_;
+    struct Impl;
+    std::unique_ptr<Impl> pImpl;
 };
