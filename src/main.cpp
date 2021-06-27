@@ -98,7 +98,6 @@ int main() {
     const auto p = getSamplePortfolio();
 
     const auto metrics = std::vector<Metric> {Metric::PV, Metric::IRDelta};
-    //const auto metrics = std::vector<Metric> {Metric::PV};
 
     for (const auto preferredPricer : { PricerKind::S3, PricerKind::IR }) {
         std::cout << "Prefer the " << name(preferredPricer) << " pricer:\n";

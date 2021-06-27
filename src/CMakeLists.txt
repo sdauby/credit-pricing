@@ -31,7 +31,6 @@ Factory/InstrumentSubFactory.cpp
 Factory/HazardRateCurveSubFactory.cpp
 Factory/InterestRateCurveSubFactory.cpp
 Factory/S3ModelSubFactory.cpp
-Metrics/Metric.cpp
 Metrics/PVImpl.cpp
 Metrics/IRDeltaImpl.cpp
 Metrics/Result.cpp
