@@ -1,9 +1,8 @@
 #pragma once
-#include "Models/Model.hpp"
 #include "Core/Date.hpp"
 #include <vector>
 
-class InterestRateCurve : public Model {
+class InterestRateCurve {
 public:
     explicit InterestRateCurve(double rate);
     InterestRateCurve(std::vector<Date>&& T, std::vector<double>&& r);

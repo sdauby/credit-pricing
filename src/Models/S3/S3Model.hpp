@@ -1,9 +1,8 @@
 #pragma once
-#include "Models/Model.hpp"
 #include <vector>
 #include "Core/Date.hpp"
 
-class S3Model : public Model { // Schoenbucher chapter 3
+class S3Model { // Schoenbucher chapter 3
 public:
     S3Model(std::vector<Date>&& T, // T[k] <-> T_k, k = 0 .. K
             std::vector<double>&& F, // F[k] <-> F(T_0, T_k, T_{k+1}), k = 0 .. K-1

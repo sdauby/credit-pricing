@@ -1,8 +1,7 @@
 #pragma once
-#include "Models/Model.hpp"
 #include "Core/Date.hpp"
 
-class HazardRateCurve : public Model {
+class HazardRateCurve {
 public:
     explicit HazardRateCurve(double lambda);
 
