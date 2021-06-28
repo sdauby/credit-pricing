@@ -1,4 +1,8 @@
 #include "IRDeltaImpl.hpp"
+#include "Container/Container.hpp"
+#include "Mutations/IRCurveMutation.hpp"
+#include "Mutations/UpdateMutation.hpp"
+#include "Pricers/Pricer.hpp"
 
 IRDeltaImpl::IRDeltaImpl(const ContainerDag& updateDag, const Factory& factory) :
     updateDag_(updateDag),

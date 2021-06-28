@@ -1,5 +1,9 @@
 #pragma once
+
 #include "Metric.hpp"
+
+class ContainerDag;
+class Factory;
 
 class IRDeltaImpl : public MetricImpl {
 public:

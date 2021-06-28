@@ -10,6 +10,7 @@
 #include "Models/S3/S3Model.hpp"
 #include "Container/Container.hpp"
 #include "Container/PricerId.hpp"
+#include "Container/ContainerDag.hpp"
 #include "Factory/Factory.hpp"
 #include "Factory/PricerSubFactory.hpp"
 #include "Factory/InstrumentSubFactory.hpp"

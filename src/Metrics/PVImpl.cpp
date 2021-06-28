@@ -1,9 +1,11 @@
 #include "PVImpl.hpp"
+#include "Container/Container.hpp"
+#include "Pricers/Pricer.hpp"
 
 std::map<InstrumentId,Result> PVImpl::compute(const Pricer& pricer,
-                                              const Container& modelContainer) const
+                                              const Container& container) const
 {
-    const auto pvs = pricer.pvs(modelContainer);
+    const auto pvs = pricer.pvs(container);
     std::map<InstrumentId,Result> results;
     for (const auto& [instrumentId, pv] : pvs) {
         Result pvResult{ std::pair{ PVKey{pv.ccy}, pv.value } };
