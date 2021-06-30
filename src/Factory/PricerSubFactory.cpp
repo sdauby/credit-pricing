@@ -20,8 +20,8 @@ std::vector<VariantId> PricerSubFactory::getPrecedents(const PricerId& pricerId,
     
     auto modelIds = [&] () {
         switch (pricerId.kind) {
-            case PricerKind::IR: return IRPricer(container,instruments).requiredModels();
-            case PricerKind::S3: return S3Pricer(container,instruments).requiredModels();
+            case PricerKind::IR: return IRPricer(container,instruments).precedents();
+            case PricerKind::S3: return S3Pricer(container,instruments).precedents();
         }
     } ();
     std::move(modelIds.begin(),modelIds.end(),std::back_inserter(precedents));

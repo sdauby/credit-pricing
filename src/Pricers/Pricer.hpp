@@ -14,6 +14,6 @@ struct PV {
 class Pricer {
 public:
     virtual ~Pricer() = default;
-    virtual std::vector<VariantId> requiredModels() const = 0;
+    virtual std::vector<VariantId> precedents() const = 0;
     virtual std::map<InstrumentId,PV> pvs(const Container& container) const = 0;
 };
