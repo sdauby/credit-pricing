@@ -7,47 +7,26 @@
 
 namespace {
 
-class ElaborationAssistant {
-public:
-    ElaborationAssistant(Container & container, const ElaboratorGeneralFactory& elaboratorGeneralFactory) :
-        container_(container),
-        elaboratorGeneralFactory_(elaboratorGeneralFactory)
-    {}
+std::unique_ptr<ElaboratorBase> makeElaborator(const ElaboratorGeneralFactory& factory,
+                                               const VariantId& id)
+{
+    return std::visit(
+        [&] (const auto& id) { 
+            return std::unique_ptr<ElaboratorBase>(factory.make(id));
+        },
+        id);
+}
 
-    std::unique_ptr<ElaboratorBase> makeElaborator(const VariantId& id)
-    {
-        return std::visit(
-            [&] (const auto& id) { 
-                return std::unique_ptr<ElaboratorBase>(elaboratorGeneralFactory_.make(id));
-            },
-            id);
-    }
-
-    void populate(const VariantId& id, ElaboratorBase& elaborator) 
-    {
-        std::visit(
-            [&] (const auto& id) {
-                using IdType = std::remove_cvref_t<decltype(id)>;
-                auto& elaborator_ = dynamic_cast<Elaborator<IdType>&>(elaborator);
-                container_.set(id,elaborator_.make(container_));
-            },
-            id
-        );
-    }
-
-
-    std::map<VariantId,std::vector<VariantId>> requestDag()
-    {
-        return {}; // to do
-        // I think that I could put more state and more validation of the
-        // expected call sequence in the assistant: oustanding requests,
-        // resolved requests. With that info I can get the precedents DAG too.
-    }
-private:
-    const ElaboratorGeneralFactory& elaboratorGeneralFactory_;
-    Container& container_;
-};
-
+void populate(const VariantId& id, ElaboratorBase& elaborator, Container& container) 
+{
+    std::visit(
+        [&] (const auto& id) {
+            using IdType = std::remove_cvref_t<decltype(id)>;
+            auto& elaborator_ = dynamic_cast<Elaborator<IdType>&>(elaborator);
+            container.set(id,elaborator_.make(container));
+        },
+        id
+    );
 }
 
 struct ElaborationState {
@@ -55,19 +34,19 @@ struct ElaborationState {
     std::unique_ptr<ElaboratorBase> elaborator; // made empty when elaboration is complete and container populated
 };
 
+}
+
 std::tuple<Container,std::map<VariantId,std::vector<VariantId>>> 
 elaborateContainer(const std::vector<VariantId>& initialIds,
                    const ElaboratorGeneralFactory& factory)
 {
     Container container;
-    ElaborationAssistant assistant(container,factory);
-
     std::map<VariantId,ElaborationState> states;
 
     const std::function<void(const VariantId& id)> includeId = [&] (const VariantId& id) {
         if (states.contains(id))
             return;
-        auto elaborator = assistant.makeElaborator(id);
+        auto elaborator = makeElaborator(factory,id);
         auto &state = states[id];
         auto batch = elaborator->getRequestBatch(Container{});
         for (const auto& request : batch)
@@ -88,7 +67,7 @@ elaborateContainer(const std::vector<VariantId>& initialIds,
             const auto& currentBatch = state.requestBatches.back();
 
             if (currentBatch.empty()) {
-                assistant.populate(id,*state.elaborator);
+                populate(id,*state.elaborator,container);
                 state.elaborator.reset();
                 continue;
             }
@@ -106,5 +85,13 @@ elaborateContainer(const std::vector<VariantId>& initialIds,
         if (allIdsPopulated)
             break;
     }
-    return {std::move(container),assistant.requestDag()};
+
+    std::map<VariantId,std::vector<VariantId>> requestDag;
+    for (const auto& [id,state] : states) {
+        auto& requests = requestDag[id];
+        for (const auto& batch : state.requestBatches)
+            requests.insert(requests.end(),batch.cbegin(),batch.cend());
+    }
+
+    return {std::move(container),std::move(requestDag)};
 }
