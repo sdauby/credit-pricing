@@ -22,6 +22,7 @@ std::vector<VariantId> PricerSubFactory::getPrecedents(const PricerId& pricerId,
         switch (pricerId.kind) {
             case PricerKind::IR: return IRPricer(container,instruments).precedents();
             case PricerKind::S3: return S3Pricer(container,instruments).precedents();
+            case PricerKind::General: assert(!"case not handled"); return std::vector<VariantId>{};
         }
     } ();
     std::move(modelIds.begin(),modelIds.end(),std::back_inserter(precedents));
@@ -40,5 +41,6 @@ std::unique_ptr<Pricer> PricerSubFactory::make(const PricerId& pricerId, const C
     switch (pricerId.kind) {
         case PricerKind::IR: return std::make_unique<IRPricer>(container,instruments);
         case PricerKind::S3: return std::make_unique<S3Pricer>(container,instruments);
+        case PricerKind::General: assert(!"case not handled"); return std::unique_ptr<Pricer>{};
     }
 }

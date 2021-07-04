@@ -1,8 +1,6 @@
 #include "IRSwapAnalytics.hpp"
 #include "Core/Date.hpp"
 
-
-
 double annuity(const IRSwap& swap, const InterestRateCurve& curve)
 {
     const auto df = [&curve](Date t) {

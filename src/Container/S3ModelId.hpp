@@ -20,3 +20,13 @@ inline bool operator<(const S3ModelId& x,
     return std::tuple{x.issuer, x.ccy, x.tenorStructure, } 
         <  std::tuple{y.issuer, y.ccy, y.tenorStructure, };
 }
+
+inline std::string to_string_(const S3ModelId& id)
+{
+    std::string s = "S3Model{";
+    s += id.issuer;
+    s += ",";
+    s += name(id.ccy);
+    s += ",<...>}";
+    return s;
+}

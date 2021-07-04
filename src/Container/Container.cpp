@@ -18,11 +18,11 @@ namespace {
 
 struct Container::Impl {
     std::tuple<
+        ObjectMap<PricerId           >,
+        ObjectMap<InstrumentId       >,
         ObjectMap<InterestRateCurveId>,
         ObjectMap<HazardRateCurveId  >,
-        ObjectMap<S3ModelId          >,
-        ObjectMap<InstrumentId       >,
-        ObjectMap<PricerId           >
+        ObjectMap<S3ModelId          >
     > objects;
     const Container* baseContainer = nullptr;
 };
@@ -75,20 +75,20 @@ std::vector<IdT> Container::ids() const
     return std::vector<IdT>(ids.begin(),ids.end());
 }
 
+template Object<PricerId           >* Container::get(const PricerId           & id) const;
+template Object<InstrumentId       >* Container::get(const InstrumentId       & id) const;
 template Object<InterestRateCurveId>* Container::get(const InterestRateCurveId& id) const;
 template Object<HazardRateCurveId  >* Container::get(const HazardRateCurveId  & id) const;
 template Object<S3ModelId          >* Container::get(const S3ModelId          & id) const;
-template Object<InstrumentId       >* Container::get(const InstrumentId       & id) const;
-template Object<PricerId           >* Container::get(const PricerId           & id) const;
 
+template void Container::set(const PricerId           & id, std::unique_ptr<Object<PricerId           >>&& object);
+template void Container::set(const InstrumentId       & id, std::unique_ptr<Object<InstrumentId       >>&& object);
 template void Container::set(const InterestRateCurveId& id, std::unique_ptr<Object<InterestRateCurveId>>&& object);
 template void Container::set(const HazardRateCurveId  & id, std::unique_ptr<Object<HazardRateCurveId  >>&& object);
 template void Container::set(const S3ModelId          & id, std::unique_ptr<Object<S3ModelId          >>&& object);
-template void Container::set(const InstrumentId       & id, std::unique_ptr<Object<InstrumentId       >>&& object);
-template void Container::set(const PricerId           & id, std::unique_ptr<Object<PricerId           >>&& object);
 
+template std::vector<PricerId           > Container::ids() const;
+template std::vector<InstrumentId       > Container::ids() const;
 template std::vector<InterestRateCurveId> Container::ids() const;
 template std::vector<HazardRateCurveId  > Container::ids() const;
 template std::vector<S3ModelId          > Container::ids() const;
-template std::vector<InstrumentId       > Container::ids() const;
-template std::vector<PricerId           > Container::ids() const;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Instrument;
 
 struct InstrumentId {
@@ -16,4 +18,9 @@ inline bool operator<(const InstrumentId& x,
 inline bool operator==(const InstrumentId& x, const InstrumentId& y)
 {
     return !(x<y || y<x);
+}
+
+inline std::string to_string_(const InstrumentId& id)
+{
+    return "Instrument{" + std::to_string(id.k) + "}";    
 }

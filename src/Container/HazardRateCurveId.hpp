@@ -17,3 +17,14 @@ inline bool operator<(const HazardRateCurveId& x,
     return std::tuple{x.issuer, x.ccy} 
         <  std::tuple{y.issuer, y.ccy};
 }
+
+inline std::string to_string_(const HazardRateCurveId& id)
+{
+    std::string s;
+    s += "HazardRateCurve{";
+    s += id.issuer;
+    s += + ",";
+    s += name(id.ccy);
+    s += "}";
+    return s;
+}

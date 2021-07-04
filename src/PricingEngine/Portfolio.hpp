@@ -1,20 +1,11 @@
 #pragma once
 #include <map>
 #include "Container/Container.hpp"
+#include "Container/PositionId.hpp"
 #include "Container/InstrumentId.hpp"
-
-class Instrument;
-
-using PositionId = unsigned;
-
-struct Position {
-    double notional = 0.0;
-    InstrumentId instrument;
-};
-
-using PositionMap = std::map<PositionId,Position>;
+#include "Elaboration/InstrumentElaborator.hpp"
 
 struct Portfolio {
-    Container instruments;
-    PositionMap positions;
+    std::map<PositionId,Position> positions;
+    InstrumentFactory makeInstrument;
 };

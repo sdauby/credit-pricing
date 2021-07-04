@@ -14,6 +14,8 @@
 #include "Pricers/PricingConfiguration.hpp"
 #include "PricingEngine/Portfolio.hpp"
 #include "PricingEngine/PricingEngine.hpp"
+#include "PricingEngine/Position.hpp"
+
 
 namespace {
     Portfolio getSamplePortfolio()
@@ -24,31 +26,28 @@ namespace {
         using namespace Data::Issuers;
         using namespace std::chrono;
 
-        // Create instruments with specified InstrumentIds.
-        // Create positions on those instruments with specified PositionIds.
-        const auto iid = [] (unsigned k) { return InstrumentId{ .k = k }; };
+        p.makeInstrument = [] (const InstrumentId& id) -> std::unique_ptr<Instrument> {
+            switch(id.k) {
+                case 0: return make<Cds>(Ccy::EUR, BNP, std::vector<Date>{ 0y, 1y, 2y, 3y, 4y, 5y, }, 0.01);
+                case 1: return make<Cds>(Ccy::USD, JPM, std::vector<Date>{ 2y, 3y, 4y, 5y, }, 0.02);
+                case 2: return make<FixedCouponBond>(Ccy::USD, C, std::vector<Date>{ 0y, 1y, 2y, 3y, }, 0.01);
+                case 3: return make<FixedCouponBond>(Ccy::EUR, BNP, std::vector<Date>{ 2y, 4y, 6y, }, 0.02);
+                case 4: return make<FloatingCouponBond>(Ccy::USD, JPM, std::vector<Date>{ 0y, 1y, 2y, 3y, }, 0.01);
+                case 5: return make<FloatingCouponBond>(Ccy::USD, C, std::vector<Date>{ 0y, 2y, 4y, 6y, }, -0.02);
+                case 6: return make<IRSwap>(Ccy::USD, std::vector<Date>{ 0y, 1y, 2y, 3y, 4y, 5y}, 0.02);
+                default:
+                    assert(!"bad instrument id");
+            }
+        };
 
-        p.instruments.set(iid(0), make<Cds>(Ccy::EUR, BNP, std::vector<Date>{ 0y, 1y, 2y, 3y, 4y, 5y, }, 0.01));
-        p.positions.emplace(0, Position{ .notional =  1'000'000, .instrument = iid(0) });
-        p.positions.emplace(1, Position{ .notional = -1'000'000, .instrument = iid(0) });
-
-        p.instruments.set(iid(1), make<Cds>(Ccy::USD, JPM, std::vector<Date>{ 2y, 3y, 4y, 5y, }, 0.02));
-        p.positions.emplace(2, Position{ .notional = 2'000'000, .instrument = iid(1) });
-
-        p.instruments.set(iid(2), make<FixedCouponBond>(Ccy::USD, C, std::vector<Date>{ 0y, 1y, 2y, 3y, }, 0.01));
-        p.positions.emplace(3, Position{ .notional = 1'000'000, .instrument = iid(2) });
-
-        p.instruments.set(iid(3), make<FixedCouponBond>(Ccy::EUR, BNP, std::vector<Date>{ 2y, 4y, 6y, }, 0.02));
-        p.positions.emplace(4, Position{ .notional = 1'000'000, .instrument = iid(3) });
-
-        p.instruments.set(iid(4), make<FloatingCouponBond>(Ccy::USD, JPM, std::vector<Date>{ 0y, 1y, 2y, 3y, }, 0.01));
-        p.positions.emplace(5, Position{ .notional = 1'000'000, .instrument = iid(4) });
-
-        p.instruments.set(iid(5),make<FloatingCouponBond>(Ccy::USD, C, std::vector<Date>{ 0y, 2y, 4y, 6y, }, -0.02));
-        p.positions.emplace(6, Position{ .notional = 1'000'000, .instrument = iid(5) });
-
-        p.instruments.set(iid(6),make<IRSwap>(Ccy::USD, std::vector<Date>{ 0y, 1y, 2y, 3y, 4y, 5y}, 0.02));
-        p.positions.emplace(7, Position{ .notional = 1'000'000, .instrument = iid(6) });
+        p.positions.emplace(PositionId{0}, Position{ .notional =  1'000'000, .instrument{0} });
+        p.positions.emplace(PositionId{1}, Position{ .notional = -1'000'000, .instrument{0} });
+        p.positions.emplace(PositionId{2}, Position{ .notional =  2'000'000, .instrument{1} });
+        p.positions.emplace(PositionId{3}, Position{ .notional =  1'000'000, .instrument{2} });
+        p.positions.emplace(PositionId{4}, Position{ .notional =  1'000'000, .instrument{3} });
+        p.positions.emplace(PositionId{5}, Position{ .notional =  1'000'000, .instrument{4} });
+        p.positions.emplace(PositionId{6}, Position{ .notional =  1'000'000, .instrument{5} });
+        p.positions.emplace(PositionId{7}, Position{ .notional =  1'000'000, .instrument{6} });
 
         return p;
     }
@@ -78,10 +77,10 @@ namespace {
             const auto& metrics = instrumentMetrics.at(instrumentId);
 
             t.startRow();
-            t.addCell( std::to_string(positionId) );
+            t.addCell( std::to_string(positionId.k) );
             t.addCell( std::to_string(instrumentId.k) );
-            t.addCell( name( p.instruments.get(instrumentId)->kind() ) );
-            t.addCell( name( config.pricerKind( *p.instruments.get(instrumentId) ) ) );
+            t.addCell( name( p.makeInstrument(instrumentId)->kind() ) );
+            t.addCell( name( config.pricerKind( *p.makeInstrument(instrumentId) ) ) );
 
             for (const auto& key : resultKeys) {
                 if (const auto i = metrics.find(key); i != metrics.end())
@@ -95,14 +94,21 @@ namespace {
 }
 
 int main() {
-    const auto p = getSamplePortfolio();
+    auto p = getSamplePortfolio();
+    const auto instruments = [&p] () {
+        std::set<InstrumentId> instruments;
+        for (const auto& [positionId, position] : p.positions)
+            instruments.insert(position.instrument);
+        return std::vector<InstrumentId>(instruments.cbegin(),instruments.cend());
+    } ();
 
-    const auto metrics = std::vector<Metric> {Metric::PV, Metric::IRDelta};
+    //const auto metrics = std::vector<Metric> {Metric::PV, Metric::IRDelta};
+    const auto metrics = std::vector<Metric> {Metric::PV};
 
     for (const auto preferredPricer : { PricerKind::S3, PricerKind::IR }) {
         std::cout << "Prefer the " << name(preferredPricer) << " pricer:\n";
         const auto config = PricingConfiguration(preferredPricer);
-        auto results = PricingEngine::run(p.instruments,config,metrics);
+        auto results = PricingEngine::run(instruments,p.makeInstrument,config,metrics);
         outputMetrics(p,config,std::move(results));
         std::cout << '\n';
     }
