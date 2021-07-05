@@ -3,6 +3,7 @@
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Pricers/Pricer.hpp"
 #include "UpdatePropagation.hpp"
+#include "Elaboration/ObjectTypes.hpp"
 
 namespace {
 
@@ -28,6 +29,16 @@ std::map<InstrumentId,Result> IRDeltaImpl::compute(const PricerId& pricerId,
     std::map<InstrumentId,Result> results;
     const auto& pricer = *container.get(pricerId);
 
+    const UpdateFunction update = 
+        [&factory = factory_] (Container& container, const VariantId& id, const std::vector<VariantId>& dirtyPrecedents) {
+            std::visit( [&] (const auto& id) -> void {
+                const auto elaborator = factory.make(id);
+                while (!elaborator->getRequestBatch(container).empty()) {}
+                auto newObject = elaborator->make(container);
+                container.set(id,std::move(newObject));
+            }, id);
+        };
+
     for (const auto& curveId : container.ids<InterestRateCurveId>()) {
         constexpr auto shiftSize = 1e-8;
         constexpr auto shifts = std::array{+shiftSize,-shiftSize};
@@ -35,7 +46,7 @@ std::map<InstrumentId,Result> IRDeltaImpl::compute(const PricerId& pricerId,
         std::array<std::map<InstrumentId,PV>,2> pvs;
         for (auto i : {0,1}) {
             const auto container1 = applyRateShift(container,curveId,shifts[i]);
-            const auto container2 = propagateUpdate(*container1,std::vector<VariantId>{curveId},requests_,factory_);
+            const auto container2 = propagateUpdate(*container1,std::vector<VariantId>{curveId},requests_,update);
             pvs[i] = pricer.pvs(*container2);
         }
         for (auto i0=pvs[0].cbegin(), e0=pvs[0].cend(),

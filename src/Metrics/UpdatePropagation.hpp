@@ -7,7 +7,11 @@
 #include <memory>
 #include <vector>
 
+using UpdateFunction = std::function<
+    void(Container& container, const VariantId& id, const std::vector<VariantId>& dirtyPrecedents)
+    >;
+
 std::unique_ptr<Container> propagateUpdate(const Container& container,
                                            const std::vector<VariantId>& initialIds,
                                            const IdDagAux& idDag,
-                                           const ElaboratorGeneralFactory& factory);
+                                           const UpdateFunction& update);
