@@ -27,12 +27,6 @@ Pricers/S3/S3Pricer.cpp
 Pricers/PricingConfiguration.cpp
 Container/Container.cpp
 Container/VariantId.cpp
-Factory/Factory.cpp
-Factory/PricerSubFactory.cpp
-Factory/InstrumentSubFactory.cpp
-Factory/HazardRateCurveSubFactory.cpp
-Factory/InterestRateCurveSubFactory.cpp
-Factory/S3ModelSubFactory.cpp
 Elaboration/Elaboration.cpp
 Elaboration/PricerElaborator.cpp
 Elaboration/InstrumentElaborator.cpp

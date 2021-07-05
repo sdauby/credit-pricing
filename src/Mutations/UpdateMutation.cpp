@@ -2,8 +2,7 @@
 #include <set>
 #include "Container/Container.hpp"
 #include "Container/ContainerDag.hpp"
-#include "Factory/Factory.hpp"
-#include "Factory/FactoryTypes.hpp"
+#include "Elaboration/ObjectTypes.hpp"
 #include "Elaboration/ElaboratorFactory.hpp"
 
 UpdateMutation::UpdateMutation(const std::vector<VariantId>& dirtyIds,
