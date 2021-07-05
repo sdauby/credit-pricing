@@ -11,7 +11,11 @@ using UpdateFunction = std::function<
     void(Container& container, const VariantId& id, const std::vector<VariantId>& dirtyPrecedents)
     >;
 
-std::unique_ptr<Container> propagateUpdate(const Container& container,
-                                           const std::vector<VariantId>& initialIds,
-                                           const IdDagAux& idDag,
-                                           const UpdateFunction& update);
+std::tuple<
+    std::unique_ptr<Container>,
+    std::vector<VariantId> // dirty ids
+    >
+propagateUpdate(const Container& container,
+                const std::vector<VariantId>& initialIds,
+                const IdDagAux& idDag,
+                const UpdateFunction& update);

@@ -3,6 +3,5 @@
 
 class PVImpl : public MetricImpl {
 public:
-    std::map<InstrumentId,Result> compute(const PricerId& pricerId,
-                                          const Container& modelContainer) const override;
+    std::map<InstrumentId,Result> compute(const Container& modelContainer) const override;
  };

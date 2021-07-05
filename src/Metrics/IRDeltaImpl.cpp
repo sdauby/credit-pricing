@@ -23,11 +23,9 @@ IRDeltaImpl::IRDeltaImpl(const IdDagAux&& requests, const ElaboratorGeneralFacto
     factory_(factory)
 {}
 
-std::map<InstrumentId,Result> IRDeltaImpl::compute(const PricerId& pricerId,
-                                                   const Container& container) const
+std::map<InstrumentId,Result> IRDeltaImpl::compute(const Container& container) const
 {
     std::map<InstrumentId,Result> results;
-    const auto& pricer = *container.get(pricerId);
 
     const UpdateFunction update = 
         [&factory = factory_] (Container& container, const VariantId& id, const std::vector<VariantId>& dirtyPrecedents) {
@@ -46,8 +44,13 @@ std::map<InstrumentId,Result> IRDeltaImpl::compute(const PricerId& pricerId,
         std::array<std::map<InstrumentId,PV>,2> pvs;
         for (auto i : {0,1}) {
             const auto container1 = applyRateShift(container,curveId,shifts[i]);
-            const auto container2 = propagateUpdate(*container1,std::vector<VariantId>{curveId},requests_,update);
-            pvs[i] = pricer.pvs(*container2);
+            const auto [container2,updated] = propagateUpdate(*container1,std::vector<VariantId>{curveId},requests_,update);
+            for (const auto& id : updated) {
+                if (const auto pricerId = std::get_if<PricerId>(&id); pricerId && pricerId->kind != PricerKind::General) {
+                    const auto* pricer = container2->get(*pricerId);
+                    pvs[i].merge(pricer->pvs(*container2));
+                }
+            }
         }
         for (auto i0=pvs[0].cbegin(), e0=pvs[0].cend(),
                   i1=pvs[1].cbegin(), e1=pvs[1].cend(); i0!=e0; ++i0, ++i1) {

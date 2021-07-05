@@ -2,10 +2,14 @@
 #include "Elaboration/ObjectTypes.hpp"
 #include <set>
 
-std::unique_ptr<Container> propagateUpdate(const Container& container,
-                                           const std::vector<VariantId>& initialIds,
-                                           const IdDagAux& idDag,
-                                           const UpdateFunction& update)
+std::tuple<
+    std::unique_ptr<Container>,
+    std::vector<VariantId>
+    >
+propagateUpdate(const Container& container,
+                const std::vector<VariantId>& initialIds,
+                const IdDagAux& idDag,
+                const UpdateFunction& update)
 {
     auto overlay = std::make_unique<Container>(container);
         
@@ -31,5 +35,5 @@ std::unique_ptr<Container> propagateUpdate(const Container& container,
             nextLayer.insert(dependents.cbegin(),dependents.cend());
         }
     }
-    return overlay;
+    return {std::move(overlay),std::vector<VariantId>(dirty.cbegin(),dirty.cend())};
 }

@@ -19,6 +19,5 @@ public:
     MetricImpl(const MetricImpl&) = delete;
     MetricImpl& operator=(const MetricImpl&) = delete;
     
-    virtual std::map<InstrumentId,Result> compute(const PricerId& pricerId,
-                                                  const Container& container) const = 0;
+    virtual std::map<InstrumentId,Result> compute(const Container& container) const = 0;
 };

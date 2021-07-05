@@ -9,8 +9,7 @@ class IRDeltaImpl : public MetricImpl {
 public:
     IRDeltaImpl(const IdDagAux&& requests, const ElaboratorGeneralFactory& factory);   
 
-    std::map<InstrumentId,Result> compute(const PricerId& pricerId,
-                                          const Container& modelContainer) const override;
+    std::map<InstrumentId,Result> compute(const Container& modelContainer) const override;
 
 private:
     IdDagAux requests_;

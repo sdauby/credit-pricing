@@ -66,7 +66,7 @@ namespace PricingEngine {
         std::map<InstrumentId,Result> results;
         for (const auto& metric : metrics) {
             const auto metricImpl = makeMetricImpl(metric);
-            auto results_ = metricImpl->compute(pricerId,container);
+            auto results_ = metricImpl->compute(container);
             for (auto& [instrumentId,result] : results_)
                 results[instrumentId].merge(result);
         }
