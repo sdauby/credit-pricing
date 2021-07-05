@@ -40,6 +40,7 @@ Elaboration/HazardRateCurveElaborator.cpp
 Elaboration/InterestRateCurveElaborator.cpp
 Elaboration/S3ModelElaborator.cpp
 Elaboration/ElaboratorFactory.cpp
+Elaboration/IdDag.cpp
 Mutations/IRCurveMutation.cpp
 Mutations/UpdateMutation.cpp
 Metrics/PVImpl.cpp

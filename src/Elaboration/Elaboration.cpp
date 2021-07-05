@@ -36,7 +36,7 @@ struct ElaborationState {
 
 }
 
-std::tuple<Container,std::map<VariantId,std::vector<VariantId>>> 
+std::tuple<Container,IdDag> 
 elaborateContainer(const std::vector<VariantId>& initialIds,
                    const ElaboratorGeneralFactory& factory)
 {
@@ -86,7 +86,7 @@ elaborateContainer(const std::vector<VariantId>& initialIds,
             break;
     }
 
-    std::map<VariantId,std::vector<VariantId>> requestDag;
+    IdDag requestDag;
     for (const auto& [id,state] : states) {
         auto& requests = requestDag[id];
         for (const auto& batch : state.requestBatches)

@@ -4,12 +4,13 @@
 #include "Container/ContainerDag.hpp"
 #include "Factory/Factory.hpp"
 #include "Factory/FactoryTypes.hpp"
+#include "Elaboration/ElaboratorFactory.hpp"
 
 UpdateMutation::UpdateMutation(const std::vector<VariantId>& dirtyIds,
-                               const ContainerDag& updateDag,
-                               const Factory& factory) :
+                               const IdDagAux& requests,
+                               const ElaboratorGeneralFactory& factory) :
     dirtyIds_(dirtyIds),
-    updateDag_(updateDag),
+    requests_(requests),
     factory_(factory)
 {}
 
@@ -17,27 +18,32 @@ std::unique_ptr<Container> UpdateMutation::apply(const Container& container) con
 {
     auto overlay = std::make_unique<Container>(container);
         
-    auto dirtyIds = std::set<VariantId>(dirtyIds_.cbegin(),dirtyIds_.cend());
-    auto isDirty = [&dirtyIds] (const auto& id) { return dirtyIds.contains(id); };
-        
-    auto currentLayer = std::set<VariantId>();
-    auto nextLayer = std::set<VariantId>(updateDag_.roots.cbegin(),updateDag_.roots.cend());
+    auto dirty = std::set<VariantId>(dirtyIds_.cbegin(),dirtyIds_.cend());
+    const auto isDirty = [&dirty] (const auto& id) { return dirty.contains(id); };
+    
+    const auto update = [&] (const VariantId& id) {
+        std::visit( [&] (const auto& id) -> void {
+            const auto elaborator = factory_.make(id);
+            while (!elaborator->getRequestBatch(*overlay).empty()) {}
+            auto newObject = elaborator->make(*overlay);
+            overlay->set(id,std::move(newObject));
+        }, id);
+    };
+
+    auto currentLayer = std::set<VariantId>{};
+    auto nextLayer = std::set<VariantId>(requests_.leaves.cbegin(),requests_.leaves.cend());
 
     while (!nextLayer.empty()) {
         currentLayer.swap(nextLayer);
         nextLayer.clear();
         for (const auto& id : currentLayer) {
-            if (const auto i = updateDag_.precedents.find(id); i != updateDag_.precedents.end()) {
-                const auto& precedents = i->second;
-                if (std::any_of(precedents.cbegin(),precedents.cend(),isDirty)) {
-                    std::visit( [&] (const auto& id) { overlay->set( id, factory_.make(id,*overlay) ); }, id );
-                    dirtyIds.insert(id);
-                }
+            const auto& requests = requests_.direct.at(id);
+            if (std::any_of(requests.cbegin(),requests.cend(),isDirty)) {
+                update(id);
+                dirty.insert(id);
             }
-            if (const auto i = updateDag_.dependents.find(id); i != updateDag_.dependents.end()) {
-                const auto& dependents = i->second;
-                nextLayer.insert(dependents.cbegin(),dependents.cend());
-            }
+            const auto& requestedBy = requests_.inverse.at(id);
+            nextLayer.insert(requestedBy.cbegin(),requestedBy.cend());
         }
     }
     return overlay;

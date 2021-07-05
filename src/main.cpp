@@ -102,8 +102,7 @@ int main() {
         return std::vector<InstrumentId>(instruments.cbegin(),instruments.cend());
     } ();
 
-    //const auto metrics = std::vector<Metric> {Metric::PV, Metric::IRDelta};
-    const auto metrics = std::vector<Metric> {Metric::PV};
+    const auto metrics = std::vector<Metric> {Metric::PV, Metric::IRDelta};
 
     for (const auto preferredPricer : { PricerKind::S3, PricerKind::IR }) {
         std::cout << "Prefer the " << name(preferredPricer) << " pricer:\n";

@@ -4,15 +4,16 @@
 #include "Mutations/UpdateMutation.hpp"
 #include "Pricers/Pricer.hpp"
 
-IRDeltaImpl::IRDeltaImpl(const ContainerDag& updateDag, const Factory& factory) :
-    updateDag_(updateDag),
+IRDeltaImpl::IRDeltaImpl(const IdDagAux&& requests, const ElaboratorGeneralFactory& factory) :
+    requests_(std::move(requests)),
     factory_(factory)
 {}
 
-std::map<InstrumentId,Result> IRDeltaImpl::compute(const Pricer& pricer,
+std::map<InstrumentId,Result> IRDeltaImpl::compute(const PricerId& pricerId,
                                                    const Container& container) const
 {
     std::map<InstrumentId,Result> results;
+    const auto& pricer = *container.get(pricerId);
 
     for (const auto& curveId : container.ids<InterestRateCurveId>()) {
         constexpr auto shiftSize = 1e-8;
@@ -21,7 +22,7 @@ std::map<InstrumentId,Result> IRDeltaImpl::compute(const Pricer& pricer,
         std::array<std::map<InstrumentId,PV>,2> pvs;
         for (auto i : {0,1}) {
             const auto container1 = IRCurveMutation(curveId,shifts[i]).apply(container);
-            const auto container2 = UpdateMutation(std::vector<VariantId>{curveId},updateDag_,factory_).apply(*container1);
+            const auto container2 = UpdateMutation(std::vector<VariantId>{curveId},requests_,factory_).apply(*container1);
             pvs[i] = pricer.pvs(*container2);
         }
         for (auto i0=pvs[0].cbegin(), e0=pvs[0].cend(),

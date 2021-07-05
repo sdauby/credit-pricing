@@ -2,9 +2,10 @@
 #include "Container/Container.hpp"
 #include "Pricers/Pricer.hpp"
 
-std::map<InstrumentId,Result> PVImpl::compute(const Pricer& pricer,
+std::map<InstrumentId,Result> PVImpl::compute(const PricerId& pricerId,
                                               const Container& container) const
 {
+    const auto& pricer = *container.get(pricerId);
     const auto pvs = pricer.pvs(container);
     std::map<InstrumentId,Result> results;
     for (const auto& [instrumentId, pv] : pvs) {

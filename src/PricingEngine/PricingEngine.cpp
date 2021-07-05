@@ -51,17 +51,22 @@ namespace PricingEngine {
             );
 
         const auto pricerId = PricerId { PricerKind::General, instruments };
-        auto [container,dag] = elaborateContainer( { pricerId }, factory); 
+        const auto x = elaborateContainer( { pricerId }, factory );
+        const auto& container = std::get<0>(x);
+        const auto& requests = std::get<1>(x);
 
-        const auto makeMetricImpl = [] (Metric metric) {
-            assert(metric == Metric::PV);
-            return std::make_unique<PVImpl>();
+        const auto makeMetricImpl = [&] (Metric metric) -> std::unique_ptr<MetricImpl> {
+            switch (metric) {
+                case Metric::PV: return std::make_unique<PVImpl>();
+                case Metric::IRDelta: return std::make_unique<IRDeltaImpl>(makeAux(requests),factory);
+                default: assert(!"Metric not supported");
+            }
         };
 
         std::map<InstrumentId,Result> results;
         for (const auto& metric : metrics) {
             const auto metricImpl = makeMetricImpl(metric);
-            auto results_ = metricImpl->compute(*container.get(pricerId),container);
+            auto results_ = metricImpl->compute(pricerId,container);
             for (auto& [instrumentId,result] : results_)
                 results[instrumentId].merge(result);
         }

@@ -4,7 +4,7 @@
 #include "Result.hpp"
 #include "Container/InstrumentId.hpp"
 
-class Pricer;
+class PricerId;
 class Container;
 
 enum class Metric {
@@ -19,6 +19,6 @@ public:
     MetricImpl(const MetricImpl&) = delete;
     MetricImpl& operator=(const MetricImpl&) = delete;
     
-    virtual std::map<InstrumentId,Result> compute(const Pricer& pricer,
+    virtual std::map<InstrumentId,Result> compute(const PricerId& pricerId,
                                                   const Container& container) const = 0;
 };
