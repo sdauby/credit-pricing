@@ -35,11 +35,10 @@ Elaboration/InterestRateCurveElaborator.cpp
 Elaboration/S3ModelElaborator.cpp
 Elaboration/ElaboratorFactory.cpp
 Elaboration/IdDag.cpp
-Mutations/IRCurveMutation.cpp
-Mutations/UpdateMutation.cpp
 Metrics/PVImpl.cpp
 Metrics/IRDeltaImpl.cpp
 Metrics/Result.cpp
+Metrics/UpdatePropagation.cpp
 PricingEngine/PricingEngine.cpp
 main.cpp
 )

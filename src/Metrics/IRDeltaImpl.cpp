@@ -1,8 +1,21 @@
 #include "IRDeltaImpl.hpp"
 #include "Container/Container.hpp"
-#include "Mutations/IRCurveMutation.hpp"
-#include "Mutations/UpdateMutation.hpp"
+#include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Pricers/Pricer.hpp"
+#include "UpdatePropagation.hpp"
+
+namespace {
+
+std::unique_ptr<Container> applyRateShift(const Container& container, const InterestRateCurveId& id, double shift)
+{
+    const auto& curve = *container.get(id);
+    auto curve_ = curve.applyRateShift(shift);
+    auto overlay = std::make_unique<Container>(container);
+    overlay->set(id,std::move(curve_));
+    return overlay;
+}
+
+}
 
 IRDeltaImpl::IRDeltaImpl(const IdDagAux&& requests, const ElaboratorGeneralFactory& factory) :
     requests_(std::move(requests)),
@@ -21,8 +34,8 @@ std::map<InstrumentId,Result> IRDeltaImpl::compute(const PricerId& pricerId,
         constexpr auto scale = 1e-4;
         std::array<std::map<InstrumentId,PV>,2> pvs;
         for (auto i : {0,1}) {
-            const auto container1 = IRCurveMutation(curveId,shifts[i]).apply(container);
-            const auto container2 = UpdateMutation(std::vector<VariantId>{curveId},requests_,factory_).apply(*container1);
+            const auto container1 = applyRateShift(container,curveId,shifts[i]);
+            const auto container2 = propagateUpdate(*container1,std::vector<VariantId>{curveId},requests_,factory_);
             pvs[i] = pricer.pvs(*container2);
         }
         for (auto i0=pvs[0].cbegin(), e0=pvs[0].cend(),
