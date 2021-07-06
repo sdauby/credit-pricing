@@ -3,7 +3,7 @@
 #include "Container/Container.hpp"
 #include "Container/VariantId.hpp"
 #include "Elaboration/IdDag.hpp"
-#include "Elaboration/ElaboratorFactory.hpp"
+#include "Elaboration/BuilderFactory.hpp"
 #include <memory>
 #include <vector>
 

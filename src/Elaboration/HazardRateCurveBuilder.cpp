@@ -1,15 +1,15 @@
-#include "HazardRateCurveElaborator.hpp"
+#include "HazardRateCurveBuilder.hpp"
 #include "Core/Data.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 
-HazardRateCurveElaborator::HazardRateCurveElaborator(const HazardRateCurveId& id) : id_(id) {}
+HazardRateCurveBuilder::HazardRateCurveBuilder(const HazardRateCurveId& id) : id_(id) {}
 
-std::vector<VariantId> HazardRateCurveElaborator::getRequestBatch(const Container&)
+std::vector<VariantId> HazardRateCurveBuilder::getRequestBatch(const Container&)
 {
     return {};
 }
 
-std::unique_ptr<HazardRateCurve> HazardRateCurveElaborator::make(const Container& container)
+std::unique_ptr<HazardRateCurve> HazardRateCurveBuilder::getObject(const Container& container)
 {
     const double lambda = [&issuer = id_.issuer, ccy = id_.ccy]() {
         using Ccy = Currency;

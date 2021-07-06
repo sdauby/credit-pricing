@@ -1,17 +1,17 @@
-#include "PricerElaborator.hpp"
+#include "PricerBuilder.hpp"
 #include "Pricers/Pricer.hpp"
 #include "Pricers/PricerKind.hpp"
 #include "Pricers/IR/IRPricer.hpp"
 #include "Pricers/S3/S3Pricer.hpp"
 #include "Pricers/General/GeneralPricer.hpp"
 
-PricerElaborator::PricerElaborator(const PricerId& id,
+PricerBuilder::PricerBuilder(const PricerId& id,
                                    const PricingConfiguration& config) : 
                                    id_(id),
                                    config_(config)
 {}
 
-std::vector<VariantId> PricerElaborator::getRequestBatch(const Container& container)
+std::vector<VariantId> PricerBuilder::getRequestBatch(const Container& container)
 {
     switch (state_) {
         case State::Initial:
@@ -39,7 +39,7 @@ std::vector<VariantId> PricerElaborator::getRequestBatch(const Container& contai
     }
 }
 
-std::unique_ptr<Pricer> PricerElaborator::make(const Container& container)
+std::unique_ptr<Pricer> PricerBuilder::getObject(const Container& container)
 {
     assert(state_ == State::AllRequestsDone && "unexpected state for make() call");
     return std::move(pricer_);

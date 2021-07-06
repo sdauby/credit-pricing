@@ -2,7 +2,7 @@
 #include "Pricers/Pricer.hpp"
 #include "Metrics/Metric.hpp"
 #include "Metrics/Result.hpp"
-#include "Elaboration/InstrumentElaborator.hpp"
+#include "Elaboration/InstrumentBuilder.hpp"
 
 class Portfolio;
 class PricingConfiguration;

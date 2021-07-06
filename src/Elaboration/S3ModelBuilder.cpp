@@ -1,13 +1,13 @@
-#include "S3ModelElaborator.hpp"
+#include "S3ModelBuilder.hpp"
 #include "Core/Data.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/S3/S3Model.hpp"
 
-S3ModelElaborator::S3ModelElaborator(const S3ModelId& id) : id_(id) {}
+S3ModelBuilder::S3ModelBuilder(const S3ModelId& id) : id_(id) {}
 
 
-std::vector<VariantId> S3ModelElaborator::getRequestBatch(const Container&)
+std::vector<VariantId> S3ModelBuilder::getRequestBatch(const Container&)
 {
     switch (state_) {
         case State::Initial:
@@ -22,7 +22,7 @@ std::vector<VariantId> S3ModelElaborator::getRequestBatch(const Container&)
     }
 }
 
-std::unique_ptr<S3Model> S3ModelElaborator::make(const Container& container)
+std::unique_ptr<S3Model> S3ModelBuilder::getObject(const Container& container)
 {
     const auto ccy = id_.ccy;
     const auto& issuer = id_.issuer;

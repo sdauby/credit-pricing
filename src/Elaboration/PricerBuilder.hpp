@@ -1,15 +1,15 @@
 #pragma once
 
-#include "ElaboratorFactory.hpp"
+#include "BuilderFactory.hpp"
 
 class PricingConfiguration;
 
-class PricerElaborator : public Elaborator<PricerId> {
+class PricerBuilder : public Builder<PricerId> {
 public:
-    PricerElaborator(const PricerId& id, const PricingConfiguration& config);
+    PricerBuilder(const PricerId& id, const PricingConfiguration& config);
 private:
     std::vector<VariantId> getRequestBatch(const Container& container) override;
-    std::unique_ptr<Pricer> make(const Container& container) override; 
+    std::unique_ptr<Pricer> getObject(const Container& container) override; 
     
     PricerId id_;
     const PricingConfiguration& config_;

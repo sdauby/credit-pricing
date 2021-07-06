@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Elaborator.hpp"
+#include "Builder.hpp"
 
-class S3ModelElaborator : public Elaborator<S3ModelId> {
+class S3ModelBuilder : public Builder<S3ModelId> {
 public:
-    S3ModelElaborator(const S3ModelId& id);
+    S3ModelBuilder(const S3ModelId& id);
 
 private:
     std::vector<VariantId> getRequestBatch(const Container&) override;
-    std::unique_ptr<S3Model> make(const Container& container) override;
+    std::unique_ptr<S3Model> getObject(const Container& container) override;
 
     S3ModelId id_;
     enum class State {

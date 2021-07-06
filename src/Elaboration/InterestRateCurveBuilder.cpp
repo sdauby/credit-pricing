@@ -1,4 +1,4 @@
-#include "InterestRateCurveElaborator.hpp"
+#include "InterestRateCurveBuilder.hpp"
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/InterestRateCurve/IRCurveCalibration.hpp"
@@ -48,14 +48,14 @@ namespace {
 
 }
 
-InterestRateCurveElaborator::InterestRateCurveElaborator(const InterestRateCurveId& id) : id_(id) {}
+InterestRateCurveBuilder::InterestRateCurveBuilder(const InterestRateCurveId& id) : id_(id) {}
 
-std::vector<VariantId> InterestRateCurveElaborator::getRequestBatch(const Container&)
+std::vector<VariantId> InterestRateCurveBuilder::getRequestBatch(const Container&)
 {
     return {};
 }
 
-std::unique_ptr<InterestRateCurve> InterestRateCurveElaborator::make(const Container& container)
+std::unique_ptr<InterestRateCurve> InterestRateCurveBuilder::getObject(const Container& container)
 {
     auto swapRates = { 0.02, 0.02, 0.02 };
     return makeIRCurve(swapRates);

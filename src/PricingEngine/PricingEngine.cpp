@@ -18,11 +18,11 @@
 #include "Pricers/S3/S3Pricer.hpp"
 #include "Pricers/PricingConfiguration.hpp"
 #include "Elaboration/Elaboration.hpp"
-#include "Elaboration/PricerElaborator.hpp"
-#include "Elaboration/InterestRateCurveElaborator.hpp"
-#include "Elaboration/HazardRateCurveElaborator.hpp"
-#include "Elaboration/S3ModelElaborator.hpp"
-#include "Elaboration/InstrumentElaborator.hpp"
+#include "Elaboration/PricerBuilder.hpp"
+#include "Elaboration/InterestRateCurveBuilder.hpp"
+#include "Elaboration/HazardRateCurveBuilder.hpp"
+#include "Elaboration/S3ModelBuilder.hpp"
+#include "Elaboration/InstrumentBuilder.hpp"
 
 namespace PricingEngine {
 
@@ -31,23 +31,23 @@ namespace PricingEngine {
                                       const PricingConfiguration& config,
                                       const std::vector<Metric>& metrics)
     {
-        ElaboratorGeneralFactory factory;
+        BuilderGeneralFactory factory;
         factory.setFactory<PricerId>( 
-                [&config] (const PricerId& id) { return std::make_unique<PricerElaborator>(id,config); } 
+                [&config] (const PricerId& id) { return std::make_unique<PricerBuilder>(id,config); } 
             );
         factory.setFactory<InstrumentId>(
                 [&makeInstrument] (const InstrumentId& id) { 
-                    return std::make_unique<InstrumentElaborator>(makeInstrument,id); 
+                    return std::make_unique<InstrumentBuilder>(makeInstrument,id); 
                 } 
             );
         factory.setFactory<InterestRateCurveId>(
-                [] (const InterestRateCurveId& id) { return std::make_unique<InterestRateCurveElaborator>(id); } 
+                [] (const InterestRateCurveId& id) { return std::make_unique<InterestRateCurveBuilder>(id); } 
             );
         factory.setFactory<HazardRateCurveId>(
-                [] (const HazardRateCurveId& id) { return std::make_unique<HazardRateCurveElaborator>(id); } 
+                [] (const HazardRateCurveId& id) { return std::make_unique<HazardRateCurveBuilder>(id); } 
             );
         factory.setFactory<S3ModelId>(
-                [] (const S3ModelId& id) { return std::make_unique<S3ModelElaborator>(id); } 
+                [] (const S3ModelId& id) { return std::make_unique<S3ModelBuilder>(id); } 
             );
 
         const auto pricerId = PricerId { PricerKind::General, instruments };

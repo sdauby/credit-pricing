@@ -18,7 +18,7 @@ std::unique_ptr<Container> applyRateShift(const Container& container, const Inte
 
 }
 
-IRDeltaImpl::IRDeltaImpl(const IdDagAux&& requests, const ElaboratorGeneralFactory& factory) :
+IRDeltaImpl::IRDeltaImpl(const IdDagAux&& requests, const BuilderGeneralFactory& factory) :
     requests_(std::move(requests)),
     factory_(factory)
 {}
@@ -30,9 +30,9 @@ std::map<InstrumentId,Result> IRDeltaImpl::compute(const Container& container) c
     const UpdateFunction update = 
         [&factory = factory_] (Container& container, const VariantId& id, const std::vector<VariantId>& dirtyPrecedents) {
             std::visit( [&] (const auto& id) -> void {
-                const auto elaborator = factory.make(id);
-                while (!elaborator->getRequestBatch(container).empty()) {}
-                auto newObject = elaborator->make(container);
+                const auto builder = factory.make(id);
+                while (!builder->getRequestBatch(container).empty()) {}
+                auto newObject = builder->getObject(container);
                 container.set(id,std::move(newObject));
             }, id);
         };

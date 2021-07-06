@@ -1,17 +1,17 @@
 #pragma once
 
-#include "Elaborator.hpp"
+#include "Builder.hpp"
 
 using InstrumentFactory = std::function<std::unique_ptr<Instrument>(const InstrumentId&)>;
 
-class InstrumentElaborator : public Elaborator<InstrumentId> {
+class InstrumentBuilder : public Builder<InstrumentId> {
 public:
-    InstrumentElaborator(const InstrumentFactory& makeInstrument,
+    InstrumentBuilder(const InstrumentFactory& makeInstrument,
                          const InstrumentId& id);
 
 private:
     std::vector<VariantId> getRequestBatch(const Container&) override;
-    std::unique_ptr<Instrument> make(const Container& container) override;
+    std::unique_ptr<Instrument> getObject(const Container& container) override;
 
     const InstrumentFactory& makeInstrument_;
     InstrumentId id_;
