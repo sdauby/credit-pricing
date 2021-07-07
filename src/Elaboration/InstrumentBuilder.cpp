@@ -1,10 +1,6 @@
-#include "InstrumentBuilder.hpp"
-#include "Core/Currency.hpp"
-#include "Core/Data.hpp"
-#include "Instruments/Cds.hpp"
-#include "Instruments/FixedCouponBond.hpp"
-#include "Instruments/FloatingCouponBond.hpp"
-#include "Instruments/IRSwap.hpp"
+#include "Elaboration/InstrumentBuilder.hpp"
+
+#include "Instruments/Instrument.hpp"
 
 InstrumentBuilder::InstrumentBuilder(const InstrumentFactory& makeInstrument,
                                            const InstrumentId& id) : 

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "BuilderFactory.hpp"
+#include "Elaboration/Builder.hpp"
+#include "Pricers/Pricer.hpp"
 
 class PricingConfiguration;
 
 class PricerBuilder : public Builder<PricerId> {
 public:
     PricerBuilder(const PricerId& id, const PricingConfiguration& config);
+
 private:
     std::vector<VariantId> getRequestBatch(const Container& container) override;
     std::unique_ptr<Pricer> getObject(const Container& container) override; 

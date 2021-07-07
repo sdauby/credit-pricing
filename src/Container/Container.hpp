@@ -1,5 +1,7 @@
 #pragma once
-#include <map>
+
+#include <memory>
+#include <vector>
 
 template<typename IdT>
 using Object = typename IdT::ObjectType;

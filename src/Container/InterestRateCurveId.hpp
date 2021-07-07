@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Core/Currency.hpp"
+
 #include <string>
 
 class InterestRateCurve;

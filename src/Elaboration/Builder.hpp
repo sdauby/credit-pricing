@@ -1,9 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include "Container/Container.hpp"
 #include "Container/VariantId.hpp"
+
+#include <vector>
+#include <memory>
 
 class BuilderBase {
 public:

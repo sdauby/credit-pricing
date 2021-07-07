@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Container/VariantId.hpp"
+
 #include <map>
 #include <vector>
-#include "Container/VariantId.hpp"
 
 using IdDag = std::map<VariantId,std::vector<VariantId>>;
 

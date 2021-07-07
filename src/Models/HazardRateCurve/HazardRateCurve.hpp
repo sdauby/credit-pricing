@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Core/Date.hpp"
 
 class HazardRateCurve {

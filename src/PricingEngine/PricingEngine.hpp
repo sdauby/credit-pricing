@@ -1,10 +1,10 @@
 #pragma once
-#include "Pricers/Pricer.hpp"
-#include "Metrics/Metric.hpp"
-#include "Metrics/Result.hpp"
-#include "Elaboration/InstrumentBuilder.hpp"
 
-class Portfolio;
+#include "Container/InstrumentId.hpp"
+#include "Elaboration/InstrumentBuilder.hpp"
+#include "Metrics/Result.hpp"
+
+namespace Metrics { enum class MetricKind; }
 class PricingConfiguration;
 
 namespace PricingEngine {

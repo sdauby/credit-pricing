@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BuilderFactory.hpp"
+#include "Builder.hpp"
 
 class HazardRateCurveBuilder : public Builder<HazardRateCurveId> {
 public:

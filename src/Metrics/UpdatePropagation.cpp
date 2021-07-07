@@ -1,4 +1,7 @@
-#include "UpdatePropagation.hpp"
+#include "Metrics/UpdatePropagation.hpp"
+
+#include "Elaboration/IdDag.hpp"
+
 #include <set>
 
 std::tuple<

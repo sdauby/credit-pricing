@@ -1,4 +1,5 @@
-#include "HazardRateCurve.hpp"
+#include "Models/HazardRateCurve/HazardRateCurve.hpp"
+
 #include <cmath>
 
 HazardRateCurve::HazardRateCurve(double lambda) : lambda_{lambda} {}

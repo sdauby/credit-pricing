@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Builder.hpp"
+#include "Elaboration/Builder.hpp"
 
 class S3ModelBuilder : public Builder<S3ModelId> {
 public:

@@ -1,4 +1,5 @@
-#include "InterestRateCurve.hpp"
+#include "Models/InterestRateCurve/InterestRateCurve.hpp"
+
 #include <cmath>
 
 InterestRateCurve::InterestRateCurve(double rate) : 

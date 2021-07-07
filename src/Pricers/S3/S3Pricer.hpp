@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Pricers/Pricer.hpp"
 
 class S3UnitPricer {

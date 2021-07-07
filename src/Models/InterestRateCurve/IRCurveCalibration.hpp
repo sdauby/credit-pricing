@@ -1,8 +1,10 @@
 #pragma once
-#include <vector>
-#include "Core/Date.hpp"
+
 #include "Instruments/IRSwap.hpp"
-#include "InterestRateCurve.hpp"
+#include "Models/InterestRateCurve/InterestRateCurve.hpp"
+
+#include <memory>
+#include <vector>
 
 class IRCurveCalibration {
 public:

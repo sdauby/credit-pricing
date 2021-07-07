@@ -1,7 +1,7 @@
 #pragma once
-#include "Pricers/PricerKind.hpp"
 
 class Instrument;
+enum class PricerKind;
 
 class PricingConfiguration final {
 public:

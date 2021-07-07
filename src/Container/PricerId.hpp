@@ -1,12 +1,12 @@
 #pragma once
 
+#include "Pricers/PricerKind.hpp"
+#include "Container/InstrumentId.hpp"
+
 #include <tuple>
 #include <vector>
-#include "Container/InstrumentId.hpp"
-#include "Pricers/PricerKind.hpp"
 
 class Pricer;
-enum class PricerKind;
 
 struct PricerId {
     using ObjectType = Pricer;

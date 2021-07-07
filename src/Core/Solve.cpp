@@ -1,6 +1,6 @@
-#include "Solve.hpp"
+#include "Core/Solve.hpp"
+
 #include <cmath>
-#include <iostream>
 
 double solve(const Function& f, double x, double y)
 {

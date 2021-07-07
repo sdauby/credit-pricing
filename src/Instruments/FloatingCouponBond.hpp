@@ -1,10 +1,12 @@
 #pragma once
-#include <vector>
+
 #include "Core/Currency.hpp"
 #include "Core/Issuer.hpp"
 #include "Core/Date.hpp"
 #include "InstrumentKind.hpp"
 #include "InstrumentImpl.hpp"
+
+#include <vector>
 
 struct FloatingCouponBondData {
     Currency ccy = {};

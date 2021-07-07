@@ -1,27 +1,15 @@
-#include "PricingEngine.hpp"
-#include <iomanip>
-#include <iostream>
-#include <set>
-#include <stack>
-#include "Portfolio.hpp"
-#include "Instruments/Instrument.hpp"
-#include "Metrics/PV.hpp"
-#include "Metrics/IRDelta.hpp"
-#include "Models/InterestRateCurve/InterestRateCurve.hpp"
-#include "Models/HazardRateCurve/HazardRateCurve.hpp"
-#include "Models/S3/S3Model.hpp"
+#include "PricingEngine/PricingEngine.hpp"
+
 #include "Container/Container.hpp"
 #include "Container/PricerId.hpp"
-#include "Pricers/Pricer.hpp"
-#include "Pricers/IR/IRPricer.hpp"
-#include "Pricers/S3/S3Pricer.hpp"
-#include "Pricers/PricingConfiguration.hpp"
 #include "Elaboration/Elaboration.hpp"
 #include "Elaboration/PricerBuilder.hpp"
-#include "Elaboration/InterestRateCurveBuilder.hpp"
-#include "Elaboration/HazardRateCurveBuilder.hpp"
-#include "Elaboration/S3ModelBuilder.hpp"
 #include "Elaboration/InstrumentBuilder.hpp"
+#include "Elaboration/HazardRateCurveBuilder.hpp"
+#include "Elaboration/InterestRateCurveBuilder.hpp"
+#include "Elaboration/S3ModelBuilder.hpp"
+#include "Metrics/PV.hpp"
+#include "Metrics/IRDelta.hpp"
 
 namespace PricingEngine {
 

@@ -1,8 +1,10 @@
-#include "S3Pricer.hpp"
-#include "CdsPricing.hpp"
-#include "FixedCouponBondPricing.hpp"
-#include "FloatingCouponBondPricing.hpp"
+#include "Pricers/S3/S3Pricer.hpp"
+
 #include "Container/Container.hpp"
+#include "Pricers/S3/CdsPricing.hpp"
+#include "Pricers/S3/FixedCouponBondPricing.hpp"
+#include "Pricers/S3/FloatingCouponBondPricing.hpp"
+
 #include <set>
 
 namespace {

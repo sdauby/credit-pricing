@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+
 #include "Core/Date.hpp"
+
+#include <vector>
 
 // Indices of the elements of t in the term structure T.
 // All elements of t must belong to T.

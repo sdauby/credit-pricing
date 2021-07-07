@@ -1,5 +1,7 @@
-#include "IRSwapAnalytics.hpp"
+#include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
+
 #include "Core/Date.hpp"
+#include "Models/InterestRateCurve/InterestRateCurve.hpp"
 
 double annuity(const IRSwap& swap, const InterestRateCurve& curve)
 {

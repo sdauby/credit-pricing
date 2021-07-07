@@ -1,6 +1,8 @@
-#include "PricingConfiguration.hpp"
+#include "Pricers/PricingConfiguration.hpp"
+
 #include "Instruments/Instrument.hpp"
 #include "Instruments/InstrumentKind.hpp"
+#include "Pricers/PricerKind.hpp"
 
 PricingConfiguration::PricingConfiguration(PricerKind preferredKind) : preferredKind_(preferredKind) {}
 

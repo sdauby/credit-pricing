@@ -1,7 +1,10 @@
 #pragma once
+
 #include "Core/Currency.hpp"
 #include "Core/Issuer.hpp"
+
 #include <tuple>
+#include <string>
 
 class HazardRateCurve;
 

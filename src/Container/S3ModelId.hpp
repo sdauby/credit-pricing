@@ -1,9 +1,12 @@
 #pragma once
+
 #include "Core/Issuer.hpp"
 #include "Core/Currency.hpp"
 #include "Core/Date.hpp"
+
 #include <vector>
 #include <tuple>
+#include <string>
 
 class S3Model;
 
@@ -17,8 +20,8 @@ struct S3ModelId {
 inline bool operator<(const S3ModelId& x, 
                       const S3ModelId& y)
 {
-    return std::tuple{x.issuer, x.ccy, x.tenorStructure, } 
-        <  std::tuple{y.issuer, y.ccy, y.tenorStructure, };
+    return std::tuple{ x.issuer, x.ccy, x.tenorStructure, } 
+        <  std::tuple{ y.issuer, y.ccy, y.tenorStructure, };
 }
 
 inline std::string to_string_(const S3ModelId& id)

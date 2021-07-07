@@ -1,10 +1,12 @@
 #pragma once
-#include <variant>
+
+#include "Core/Currency.hpp"
+#include "Container/InterestRateCurveId.hpp"
+
 #include <map>
 #include <vector>
 #include <string>
-#include "Core/Currency.hpp"
-#include "Container/InterestRateCurveId.hpp"
+#include <variant>
 
 namespace Metrics {
 

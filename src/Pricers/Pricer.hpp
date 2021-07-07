@@ -1,8 +1,10 @@
 #pragma once
-#include <vector>
-#include <map>
+
 #include "Core/Currency.hpp"
 #include "Container/VariantId.hpp"
+
+#include <vector>
+#include <map>
 
 class Container;
 

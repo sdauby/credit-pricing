@@ -1,4 +1,4 @@
-#include "S3Model.hpp"
+#include "Models/S3/S3Model.hpp"
 
 S3Model::S3Model(std::vector<Date>&& T,
              std::vector<double>&& F,

@@ -17,7 +17,7 @@ inline bool operator<(const InstrumentId& x,
 
 inline bool operator==(const InstrumentId& x, const InstrumentId& y)
 {
-    return !(x<y || y<x);
+    return x.k == y.k;
 }
 
 inline std::string to_string_(const InstrumentId& id)

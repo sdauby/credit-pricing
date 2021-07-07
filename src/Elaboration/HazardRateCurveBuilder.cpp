@@ -1,4 +1,5 @@
-#include "HazardRateCurveBuilder.hpp"
+#include "Elaboration/HazardRateCurveBuilder.hpp"
+
 #include "Core/Data.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 

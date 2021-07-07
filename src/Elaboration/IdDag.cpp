@@ -1,4 +1,4 @@
-#include "IdDag.hpp"
+#include "Elaboration/IdDag.hpp"
 
 IdDagAux makeAux(IdDag direct) 
 {

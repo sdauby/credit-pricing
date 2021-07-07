@@ -1,7 +1,8 @@
-#include "CdsPricing.hpp"
+#include "Pricers/S3/CdsPricing.hpp"
+
+#include "Container/S3ModelId.hpp"
 #include "Models/S3/S3Model.hpp"
 #include "Models/S3/Utilities.hpp"
-#include "Container/S3ModelId.hpp"
 
 S3ModelId modelId(const Cds& cds)
 {

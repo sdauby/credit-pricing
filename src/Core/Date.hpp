@@ -1,4 +1,5 @@
 #pragma once
+
 #include <chrono>
 
 using Date = std::chrono::year;

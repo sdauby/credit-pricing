@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Metric.hpp"
+#include "Metrics/Metric.hpp"
 
 namespace Metrics {
 

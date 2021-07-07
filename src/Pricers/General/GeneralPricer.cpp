@@ -1,9 +1,10 @@
-#include "GeneralPricer.hpp"
+#include "Pricers/General/GeneralPricer.hpp"
+
+#include "Core/overloaded.hpp"
+#include "Container/Container.hpp"
 #include "Pricers/PricingConfiguration.hpp"
 #include "Pricers/IR/IRPricer.hpp"
 #include "Pricers/S3/S3Pricer.hpp"
-#include "Container/Container.hpp"
-#include "Core/overloaded.hpp"
 
 GeneralPricer::GeneralPricer(const Container& container,
                              const std::vector<InstrumentId>& instruments,

@@ -1,9 +1,10 @@
 #pragma once
-#include <map>
-#include "Container/Container.hpp"
+
 #include "Container/PositionId.hpp"
-#include "Container/InstrumentId.hpp"
+#include "PricingEngine/Position.hpp"
 #include "Elaboration/InstrumentBuilder.hpp"
+
+#include <map>
 
 struct Portfolio {
     std::map<PositionId,Position> positions;

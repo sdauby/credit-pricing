@@ -1,14 +1,9 @@
-#include "Container.hpp"
-#include "InterestRateCurveId.hpp"
-#include "HazardRateCurveId.hpp"
-#include "S3ModelId.hpp"
-#include "InstrumentId.hpp"
-#include "PricerId.hpp"
-#include "Models/InterestRateCurve/InterestRateCurve.hpp"
-#include "Models/HazardRateCurve/HazardRateCurve.hpp"
-#include "Models/S3/S3Model.hpp"
-#include "Instruments/Instrument.hpp"
-#include "Pricers/Pricer.hpp"
+#include "Container/Container.hpp"
+
+#include "Container/IdTypes.hpp"
+#include "Container/ObjectTypes.hpp"
+
+#include <map>
 #include <set>
 
 namespace {

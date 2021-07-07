@@ -1,4 +1,5 @@
-#include "PricerBuilder.hpp"
+#include "Elaboration/PricerBuilder.hpp"
+
 #include "Pricers/Pricer.hpp"
 #include "Pricers/PricerKind.hpp"
 #include "Pricers/IR/IRPricer.hpp"
@@ -6,9 +7,9 @@
 #include "Pricers/General/GeneralPricer.hpp"
 
 PricerBuilder::PricerBuilder(const PricerId& id,
-                                   const PricingConfiguration& config) : 
-                                   id_(id),
-                                   config_(config)
+                             const PricingConfiguration& config) : 
+                             id_(id),
+                             config_(config)
 {}
 
 std::vector<VariantId> PricerBuilder::getRequestBatch(const Container& container)

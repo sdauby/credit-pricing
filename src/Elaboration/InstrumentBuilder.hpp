@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Builder.hpp"
+#include "Elaboration/Builder.hpp"
 
 using InstrumentFactory = std::function<std::unique_ptr<Instrument>(const InstrumentId&)>;
 

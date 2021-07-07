@@ -1,8 +1,10 @@
-#include "InterestRateCurveBuilder.hpp"
+#include "Elaboration/InterestRateCurveBuilder.hpp"
+
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/InterestRateCurve/IRCurveCalibration.hpp"
 #include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
+
 #include <cmath>
 
 namespace {

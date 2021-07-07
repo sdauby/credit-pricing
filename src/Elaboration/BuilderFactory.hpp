@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Elaboration/Builder.hpp"
+
 #include <memory>
-#include "Builder.hpp"
 
 template<typename IdT>
 using BuilderFactory = std::function<std::unique_ptr<Builder<IdT>>(const IdT&)>;

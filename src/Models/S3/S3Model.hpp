@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+
 #include "Core/Date.hpp"
+
+#include <vector>
 
 class S3Model { // Schoenbucher chapter 3
 public:

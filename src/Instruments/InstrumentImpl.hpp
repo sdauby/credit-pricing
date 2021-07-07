@@ -1,5 +1,8 @@
 #pragma once
-#include "Instrument.hpp"
+
+#include "Instruments/Instrument.hpp"
+
+#include <memory>
 
 enum class InstrumentKind;
 

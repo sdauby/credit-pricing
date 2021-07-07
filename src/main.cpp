@@ -1,5 +1,3 @@
-#include <iostream>
-#include <set>
 #include "Core/Currency.hpp"
 #include "Core/Issuer.hpp"
 #include "Core/Date.hpp"
@@ -15,6 +13,9 @@
 #include "PricingEngine/Portfolio.hpp"
 #include "PricingEngine/PricingEngine.hpp"
 #include "PricingEngine/Position.hpp"
+
+#include <iostream>
+#include <set>
 
 using namespace Metrics;
 

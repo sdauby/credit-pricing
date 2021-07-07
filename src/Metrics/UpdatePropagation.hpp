@@ -2,10 +2,11 @@
 
 #include "Container/Container.hpp"
 #include "Container/VariantId.hpp"
-#include "Elaboration/IdDag.hpp"
-#include "Elaboration/BuilderFactory.hpp"
+
 #include <memory>
 #include <vector>
+
+struct IdDagAux;
 
 using UpdateFunction = std::function<
     void(Container& container, const VariantId& id, const std::vector<VariantId>& dirtyPrecedents)

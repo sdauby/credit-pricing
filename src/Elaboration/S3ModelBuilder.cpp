@@ -1,11 +1,11 @@
-#include "S3ModelBuilder.hpp"
+#include "Elaboration/S3ModelBuilder.hpp"
+
 #include "Core/Data.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/S3/S3Model.hpp"
 
 S3ModelBuilder::S3ModelBuilder(const S3ModelId& id) : id_(id) {}
-
 
 std::vector<VariantId> S3ModelBuilder::getRequestBatch(const Container&)
 {

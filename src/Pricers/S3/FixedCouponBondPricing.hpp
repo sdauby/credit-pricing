@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Instruments/FixedCouponBond.hpp"
 
 struct S3ModelId;

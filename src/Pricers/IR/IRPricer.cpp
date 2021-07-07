@@ -1,12 +1,14 @@
-#include "IRPricer.hpp"
+#include "Pricers/IR/IRPricer.hpp"
+
+#include "Container/Container.hpp"
+#include "Container/InterestRateCurveId.hpp"
 #include "Instruments/Instrument.hpp"
 #include "Instruments/FixedCouponBond.hpp"
 #include "Instruments/FloatingCouponBond.hpp"
 #include "Instruments/IRSwap.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/InterestRateCurve/IRSwapAnalytics.hpp"
-#include "Container/Container.hpp"
-#include "Container/InterestRateCurveId.hpp"
+
 #include <set>
 
 namespace {

@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Core/Date.hpp"
+
 #include <vector>
 
 class InterestRateCurve {
@@ -18,4 +20,3 @@ private:
 };
 
 double forwardRate(const InterestRateCurve& curve, Date t, Date u);
-
