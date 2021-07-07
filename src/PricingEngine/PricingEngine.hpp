@@ -10,8 +10,8 @@ class PricingConfiguration;
 namespace PricingEngine {
 
 std::map<InstrumentId,Metrics::Result> run(const std::vector<InstrumentId>& instruments,
-                                          const InstrumentFactory& makeInstrument,
-                                          const PricingConfiguration& config,
-                                          const std::vector<Metrics::MetricKind>& metrics);
+                                           const InstrumentFactory& makeInstrument,
+                                           const PricingConfiguration& config,
+                                           const std::vector<Metrics::MetricKind>& metrics);
 
 }

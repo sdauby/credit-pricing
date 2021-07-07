@@ -55,7 +55,7 @@ std::vector<VariantId> InterestRateCurveBuilder::getRequestBatch(const Container
     return {};
 }
 
-std::unique_ptr<InterestRateCurve> InterestRateCurveBuilder::getObject(const Container& container)
+std::unique_ptr<InterestRateCurve> InterestRateCurveBuilder::getObject(const Container&)
 {
     auto swapRates = { 0.02, 0.02, 0.02 };
     return makeIRCurve(swapRates);

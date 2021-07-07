@@ -9,7 +9,7 @@ std::vector<VariantId> HazardRateCurveBuilder::getRequestBatch(const Container&)
     return {};
 }
 
-std::unique_ptr<HazardRateCurve> HazardRateCurveBuilder::getObject(const Container& container)
+std::unique_ptr<HazardRateCurve> HazardRateCurveBuilder::getObject(const Container&)
 {
     const double lambda = [&issuer = id_.issuer, ccy = id_.ccy]() {
         using Ccy = Currency;

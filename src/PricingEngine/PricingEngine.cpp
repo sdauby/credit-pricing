@@ -12,7 +12,6 @@
 #include "Models/S3/S3Model.hpp"
 #include "Container/Container.hpp"
 #include "Container/PricerId.hpp"
-#include "Container/ContainerDag.hpp"
 #include "Pricers/Pricer.hpp"
 #include "Pricers/IR/IRPricer.hpp"
 #include "Pricers/S3/S3Pricer.hpp"

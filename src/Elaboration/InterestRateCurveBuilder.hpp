@@ -8,7 +8,7 @@ public:
 
 private:
     std::vector<VariantId> getRequestBatch(const Container&) override;
-    std::unique_ptr<InterestRateCurve> getObject(const Container& container) override;
+    std::unique_ptr<InterestRateCurve> getObject(const Container&) override;
 
     InterestRateCurveId id_;
 };

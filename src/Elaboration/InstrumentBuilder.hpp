@@ -7,11 +7,11 @@ using InstrumentFactory = std::function<std::unique_ptr<Instrument>(const Instru
 class InstrumentBuilder : public Builder<InstrumentId> {
 public:
     InstrumentBuilder(const InstrumentFactory& makeInstrument,
-                         const InstrumentId& id);
+                      const InstrumentId& id);
 
 private:
     std::vector<VariantId> getRequestBatch(const Container&) override;
-    std::unique_ptr<Instrument> getObject(const Container& container) override;
+    std::unique_ptr<Instrument> getObject(const Container&) override;
 
     const InstrumentFactory& makeInstrument_;
     InstrumentId id_;

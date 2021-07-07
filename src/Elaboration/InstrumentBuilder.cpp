@@ -17,7 +17,7 @@ std::vector<VariantId> InstrumentBuilder::getRequestBatch(const Container&)
     return {};
 }
 
-std::unique_ptr<Instrument> InstrumentBuilder::getObject(const Container& container) 
+std::unique_ptr<Instrument> InstrumentBuilder::getObject(const Container&) 
 {
     return makeInstrument_(id_);
 }
