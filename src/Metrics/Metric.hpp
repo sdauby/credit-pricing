@@ -1,23 +1,25 @@
 #pragma once
 
-#include <set>
-#include "Result.hpp"
 #include "Container/InstrumentId.hpp"
+#include "Metrics/Result.hpp"
 
-class PricerId;
 class Container;
 
-enum class Metric {
+namespace Metrics {
+
+enum class MetricKind {
     PV,
     IRDelta,
 };
 
-class MetricImpl {
+class Metric {
 public:
-    virtual ~MetricImpl() = default;
-    MetricImpl() = default;
-    MetricImpl(const MetricImpl&) = delete;
-    MetricImpl& operator=(const MetricImpl&) = delete;
+    virtual ~Metric() = default;
+    Metric() = default;
+    Metric(const Metric&) = delete;
+    Metric& operator=(const Metric&) = delete;
     
     virtual std::map<InstrumentId,Result> compute(const Container& container) const = 0;
 };
+
+}

@@ -1,4 +1,4 @@
-#include "IRDeltaImpl.hpp"
+#include "IRDelta.hpp"
 #include "Container/Container.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Pricers/Pricer.hpp"
@@ -18,12 +18,14 @@ std::unique_ptr<Container> applyRateShift(const Container& container, const Inte
 
 }
 
-IRDeltaImpl::IRDeltaImpl(const IdDagAux&& requests, const BuilderGeneralFactory& factory) :
+namespace Metrics {
+
+IRDelta::IRDelta(const IdDagAux&& requests, const BuilderGeneralFactory& factory) :
     requests_(std::move(requests)),
     factory_(factory)
 {}
 
-std::map<InstrumentId,Result> IRDeltaImpl::compute(const Container& container) const
+std::map<InstrumentId,Result> IRDelta::compute(const Container& container) const
 {
     std::map<InstrumentId,Result> results;
 
@@ -68,4 +70,6 @@ std::map<InstrumentId,Result> IRDeltaImpl::compute(const Container& container) c
         }
     }
     return results;
+}
+
 }

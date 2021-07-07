@@ -5,9 +5,11 @@
 
 class BuilderGeneralFactory;
 
-class IRDeltaImpl : public MetricImpl {
+namespace Metrics {
+
+class IRDelta : public Metric {
 public:
-    IRDeltaImpl(const IdDagAux&& requests, const BuilderGeneralFactory& factory);   
+    IRDelta(const IdDagAux&& requests, const BuilderGeneralFactory& factory);   
 
     std::map<InstrumentId,Result> compute(const Container& modelContainer) const override;
 
@@ -15,3 +17,5 @@ private:
     IdDagAux requests_;
     const BuilderGeneralFactory& factory_;
 };
+
+}

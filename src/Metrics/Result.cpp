@@ -1,6 +1,8 @@
 #include "Result.hpp"
 #include "Core/overloaded.hpp"
 
+namespace Metrics {
+
 std::vector<std::string> toStrings(const ResultKey& key) 
 {
     return std::visit(overloaded {
@@ -26,4 +28,7 @@ bool operator< (const IRDeltaKey& x, const IRDeltaKey& y)
         return std::tuple(k.ccy,k.curveId);
     };
     return tuple(x)<tuple(y);
+}
+
+
 }

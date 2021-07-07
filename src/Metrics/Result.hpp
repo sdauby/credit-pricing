@@ -6,6 +6,8 @@
 #include "Core/Currency.hpp"
 #include "Container/InterestRateCurveId.hpp"
 
+namespace Metrics {
+
 struct PVKey {
     Currency ccy;
 };
@@ -29,3 +31,5 @@ using ResultKey = std::variant<
 using Result = std::map<ResultKey,double>;
 
 std::vector<std::string> toStrings(const ResultKey& key);
+
+}

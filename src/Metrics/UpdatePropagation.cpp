@@ -1,5 +1,4 @@
 #include "UpdatePropagation.hpp"
-#include "Elaboration/ObjectTypes.hpp"
 #include <set>
 
 std::tuple<

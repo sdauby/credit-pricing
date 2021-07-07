@@ -16,6 +16,7 @@
 #include "PricingEngine/PricingEngine.hpp"
 #include "PricingEngine/Position.hpp"
 
+using namespace Metrics;
 
 namespace {
     Portfolio getSamplePortfolio()
@@ -102,7 +103,7 @@ int main() {
         return std::vector<InstrumentId>(instruments.cbegin(),instruments.cend());
     } ();
 
-    const auto metrics = std::vector<Metric> {Metric::PV, Metric::IRDelta};
+    const auto metrics = std::vector<MetricKind> {MetricKind::PV, MetricKind::IRDelta};
 
     for (const auto preferredPricer : { PricerKind::S3, PricerKind::IR }) {
         std::cout << "Prefer the " << name(preferredPricer) << " pricer:\n";

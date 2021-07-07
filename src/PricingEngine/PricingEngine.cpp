@@ -5,8 +5,8 @@
 #include <stack>
 #include "Portfolio.hpp"
 #include "Instruments/Instrument.hpp"
-#include "Metrics/PVImpl.hpp"
-#include "Metrics/IRDeltaImpl.hpp"
+#include "Metrics/PV.hpp"
+#include "Metrics/IRDelta.hpp"
 #include "Models/InterestRateCurve/InterestRateCurve.hpp"
 #include "Models/HazardRateCurve/HazardRateCurve.hpp"
 #include "Models/S3/S3Model.hpp"
@@ -26,10 +26,12 @@
 
 namespace PricingEngine {
 
+    using namespace Metrics;
+
     std::map<InstrumentId,Result> run(const std::vector<InstrumentId>& instruments,
                                       const InstrumentFactory& makeInstrument,
                                       const PricingConfiguration& config,
-                                      const std::vector<Metric>& metrics)
+                                      const std::vector<MetricKind>& metrics)
     {
         BuilderGeneralFactory factory;
         factory.setFactory<PricerId>( 
@@ -55,10 +57,10 @@ namespace PricingEngine {
         const auto& container = std::get<0>(x);
         const auto& requests = std::get<1>(x);
 
-        const auto makeMetricImpl = [&] (Metric metric) -> std::unique_ptr<MetricImpl> {
+        const auto makeMetricImpl = [&] (MetricKind metric) -> std::unique_ptr<Metric> {
             switch (metric) {
-                case Metric::PV: return std::make_unique<PVImpl>();
-                case Metric::IRDelta: return std::make_unique<IRDeltaImpl>(makeAux(requests),factory);
+                case MetricKind::PV: return std::make_unique<Metrics::PV>();
+                case MetricKind::IRDelta: return std::make_unique<IRDelta>(makeAux(requests),factory);
                 default: assert(!"Metric not supported");
             }
         };

@@ -1,8 +1,10 @@
-#include "PVImpl.hpp"
+#include "PV.hpp"
 #include "Container/Container.hpp"
 #include "Pricers/Pricer.hpp"
 
-std::map<InstrumentId,Result> PVImpl::compute(const Container& container) const
+namespace Metrics {
+
+std::map<InstrumentId,Result> PV::compute(const Container& container) const
 {
     std::map<InstrumentId,Result> results;
 
@@ -19,4 +21,6 @@ std::map<InstrumentId,Result> PVImpl::compute(const Container& container) const
         }        
     }
     return results;
+}
+
 }
