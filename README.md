@@ -17,10 +17,10 @@ the management of multiple states of those objects, which in turn provides a fou
 * Elaboration is a configurable process for assembling in a Container, from various data sources, all the
 data required for a specific computation.
 * The Models module provides market models, the building blocks of instrument pricing.
-* The Pricer abstraction. A Pricer produces instrument PVs from the contents of a container, using Models.
+* The Pricer abstraction. A Pricer uses Models to produce Instrument PVs from the contents of a Container.
 * The Metrics module combines the Pricer abstraction with Container states to implement greeks.
 * PricingConfiguration encapsulates the Pricer selection strategy.
-* The PricingEngine produces instrument PVs and greeks given a PricingConfiguration.
+* The PricingEngine produces Instrument PVs and greeks given a PricingConfiguration.
 
 Even in the architectural dimension, this is very far from a complete prototype.
 Here are a few unimplemeted features, out of a great many, with architectural significance:
@@ -72,7 +72,7 @@ We can observe that:
 
 ## 2.2 Code structure
 
-The below diagram presents the components of the system ordered by their dependencies.
+The below diagram presents the components and a simplified view of their dependency relationships.
 
 ![Components](https://github.com/sdauby/credit-pricing/blob/main/svg/components.svg "Components")
 
@@ -93,8 +93,6 @@ I have also placed here the `Data` namespace, which provides a few hard-coded ma
 There is also the `solve()` function, a very primitive root solver.
 
 ## 3.2 Instruments
-
-#### 3.2.1 Instrument
 
 The `InstrumentKind` enum class assigns an enumerator to every instrument type (`FixedCouponBond`, `FloatingCouponBond`, `Cds`, `IRSwap`).
 
@@ -122,22 +120,6 @@ struct FixedCouponBondData {
 };
 ```
 
-#### 3.2.2 Portfolio
-
-`InstrumentId` and `PositionId` are `unsigned` aliases. (Improvement: make them proper types in the interest of type safety.)
-They identify `Instrument`s and `Position`s in the context of a `Portfolio`.
-
-A `Position` represents a quantity of an instrument.
-A `Portfolio` consists of a collection of `Instrument`s and a collection of `Position`s.
-The concept of position is useful to represent the situation where several positions refer to the same instrument,
-as may happen in particular for fungible, standardized instruments.
-For example, when pricing a portfolio containing several positions on the same instrument, we need to price
-the common instrument only once.
-
-The `Instrument`s contained in a `Portfolio` are held through `unique_ptr<Instrument>`s, so:
-* `Portfolio` has no direct knowledge of the concrete types of the `Instrument`s;
-* `Portfolio` has sole ownership of the `Instrument`s.
-
 ## 3.3 Models
 
 ### 3.3.1 The concept of model
@@ -147,7 +129,6 @@ Any object whose values are derived from instrument market prices, and from whic
 is a model.
 This applies e.g. to Libor Market Models, to SABR models, to discount curves.
 At the lowest end of the spectrum of model complexity lies the degenerate case of raw market prices.
-(Improvement: specify the concept further with a bit of abstract, mathematical-style formalism.)
 
 ### 3.3.2 Implementation
 
@@ -168,70 +149,156 @@ Its constructor moves a tenor structure of forward rates and hazard rates, as we
 Its member functions (`T`, `delta`, `B`, `Bbar`, `e`, `pi`, `F`) provide the building blocks in the notations of
 the book.
 
-## 3.4 ModelContainer
+## 3.4 Container
 
-This component implements a container mapping model identifiers to models.
+### 3.4.1 Objects and Identifiers
 
-### 3.4.1 Model identifiers
+A container contains collections of objects of certain types. Each object in the container has an identifier.
+There is a correspondance between the object types and the identifier types:
 
-The `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId` structs each contain a `ModelType` type alias, equal
-respectively to `InterestRateCurve`, `HazardRateCurve` and `S3Model`.
-In that way, we establish a `ModelIdT` to `ModelT` correspondance for every model type `ModelT`.
-(In the rest of this document, *the `ModelIdT` types* will mean `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId`.)
+| `ObjectT`           | `IdT`                 | Example `IdT`
+| -------------       |-------------          | -----------
+| `Pricer`            | `PricerId`            | `Pricer{S3,[Instrument{0},Instrument{2}]}`
+| `Instrument`        | `InstrumentId`        | `Instrument{0}`
+| `HazardRateCurve`   | `HazardRateCurveId`   | `HazardRateCurve{USD,JPM}`
+| `InterestRateCurve` | `InterestRateCurveId` | `InterestRateCurve{EUR}`
+| `S3Model`           | `S3ModelId`           | `HazardRateCurve{USD,JPM}`
 
-A `ModelIdT` value contains data which specify the segment of the financial markets which is
-modelled and abstracted by a model (cf 3.3.1).
-For example, `HazardRateCurveId` contains an issuer and a currency. The value
-`HazardRateCurveId{Currency::USD,Issuers::JPM}` identifies the hazard rate curve representing the default risk of issuer
-JP Morgan in USD.
+The data of an `IdT` instance must allow us to uniquely identify the role of an object in business-wise meaningful terms.
+For example, the value `HazardRateCurveId{Currency::USD,Issuers::JPM}` identifies the hazard rate curve representing 
+the default risk of issuer JP Morgan in USD.
 
-### 3.4.2 `ModelId`
+`VariantId` is a `std::variant` whose alternatives are all of the `IdT` types listed above.
 
-`ModelId` is a `std::variant` whose alternatives are `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId`.
-Therefore, it is an identifier for a model of any of the corresponding types.
+### 3.4.2 Container
 
-It is useful, for example, to enable the collection of heterogeneous `ModelIdT` values in a single container.
-The `ModelT` / `ModelIdT` type relationship is analogous to the `Instrument` / `InstrumentImpl`
-instance relationship.
-Yet, they are implemented differently.
-There is no strong reason for this difference.
-`std::variant` has the benefit of being a concrete type (cf C++ Core Guidelines C.10).
-On the other hand, it is less memory efficent than a pointer to an interface type.
-The choice of one or the other (or yet another) approach is not set in stone.
+`Container` contains objects of the `ObjectT` types, keyed by values of the `IdT` types.
+It uses `std::unique_ptr` so it assumes sole ownership of the objects it contains.
 
-Note that `ModelId` has no role in ModelContainer.
-It is defined in this component because of its close connection with the `ModelIdT` types.
-
-### 3.4.3 ModelContainer
-
-`ModelContainer` contains objects of the `ModelT` types, keyed by values of the `ModelIdT` types.
-It uses `std::unique_ptr` so it assumes sole ownership of the model objects it contains.
-
-It provides member function templates `get()` and `set()`, parameterized by the `ModelIdT` type.
-
-Interestingly, the `InterestRateCurveId`, `HazardRateCurveId` and `S3ModelId` types, as well as
-the `InterestRateCurve`, `HazardRateCurve` and `S3Model` types, are completely hidden from `ModelContainer.hpp`:
-* They do not occur in the data members because we use the pImpl idiom.
-* They do not occur in the `get()` and `set()` member functions because they are templates which abstract those types via the template type parameter.
-
-So, we can add concrete model types to `ModelContainer` without recompiling any existing `ModelContainer` client.
+It provides member function templates `get()` and `set()`, parameterized by the `IdT` type.
 
 The `get()` member function template returns a raw pointer. 
 This is standard for non-owning references which may be null. (Cf C++ Core Guidelines F.60.)
 
-(Improvement: it may be possible to further factorize `ModelContainer.cpp` with a variadic template taking
-all the `ModelIdT` types.)
+### 3.4.3 Container overlays
 
-## 3.5 Pricers
+A `Container` instance `C1` may be an overlay on another `Container` instance `C2`. 
+In that arrangement,
+* all the elements of `C2` appear as elements of `C1`;
+* `C1` may override the values of some of these elements;
+* `C1` may also have extra elements.
 
-### 3.5.1 Pricer
+This feature is a foundation for the efficient implementation of container state
+scenarios and, from there, finite-difference greeks.
+
+For example, we may have a large container with many different kinds of objects.
+We want a scenario where the EUR IR curve is shifted up by 10bp, and all the objects
+which depend on it are updated correspondingly.
+For this, we create an overlay container referring to the original container, and we
+override only `IRCurve{EUR}` and all its dependents.
+
+This arrangement is in the spirit of the Decorator pattern.
+It offers great flexibility and robustness (all objects are constant). 
+Compared to in-place application of object state changes, it sacrifices some memory, but
+opens the possibility of safe and efficient multi-threading.
+
+### 3.4.4 Flexibility
+
+`Container` is agnostic and unobtrusive with respect to the types of the objects
+it may contain (e.g. it does not require them to inherit from a specific abstract base class).
+So, we can easily integrate any object type in `Container`: instruments, models, static data representations,
+configurations, etc.
+For example, the `S3Model` type contains no more and no less than the implementation of Schönbucher's
+specification.
+
+Besides, as we have seen, we can easily generate scenarios on all of those data.
+For example, we can generate scenarios on instrument parameters just as easily as on market data.
+
+## 3.5 Elaboration
+
+### 3.5.1 Presentation of the problem
+
+Container elaboration is the process of assembling in a Container, from various data sources, all the
+data required for a specific computation task.
+
+For example, we may want to price a collection of instruments, with a given pricer selection strategy.
+
+We will first have to examine the instruments, to assign them to the S3 or IR pricer according to the
+pricer selection strategy.
+
+Then we will need those pricers to indicate the model data required for the evaluation of those instruments:
+the IR curve of the instrument currency for the IR pricers, the S3 model of the instrument issuer and currency
+for the S3 pricers.
+
+Then we will need to load these model data.
+The IR curves may be directly available from the data sources, but the S3 models may have to be created
+from an IR curve and a hazard rate curve. 
+So, we will have to get the identifiers of the IR curves and hazard rate curves required for the creation
+of the S3 models, load them, then create the S3 models.
+
+At some point, we will have set up all these objects in the container.
+Then, the elaboration process will be complete and we will be available to move on to evaluating
+the instrument PVs and greeks.
+
+The problem of container elaboration is easy to overlook in the early stages of developing a multi-asset
+quant library.
+Simple ad-hoc strategies are sufficient for many cases.
+However, as the library grows and its uses become more varied and more complex, elaboration, if not treated
+properly, may become a critical pain point.
+By the time this becomes evident, retro-fitting a general solution to the existing code base is hard.
+So, in my opinion, it is well worth properly analysing the general problem, and designing a robust solution,
+early on.
+
+### 3.5.2 Specifications
+
+The following properties are desirable.
+* Customisable data sources, e.g. retrieving the objects from a self-contained file or from a data base connection.
+* Customisable object creation, e.g. retrieving a calibrated IR curve from a data source or calibrating the IR curve
+from IR instrument prices.
+* Related to the previous point, customisable dependency relationships, e.g. an IR curve depends on nothing if provided
+in calibrated form, but depends on IR instrument prices if it is calibrated in the elaboration process.
+* Multi-step determination of the data requests of a given object, e.g. a pricer having initially only the instrument
+identifiers will have to first request the instrument objects and, after they are loaded and can be examined, request
+the model objets required to price the instruments.
+* Optimised grouping of data requests, i.e. data must be loaded in bulk, rather than piecemeal, as much as possible,
+in the interest of efficient communication with the data sources.
+* Customisable computation task, e.g. a pricing task or a calibration task.
+
+### 3.5.3 Implementation
+
+The implementation involves a good deal of abstraction (e.g. `BuilderFactory` is more or less a template for factories of factories).
+It is the price of generality.
+
+The entry point is `elaborateContainer()`.
+It consumes initial identifiers and a `BuilderGeneralFactory`, and returns
+a Container containing the objects identified by the initial identifiers, and all the objects they request, and the
+objects requested by those objects, and so on recursively.
+It also returns a directed acyclical graph representing the *"object x requested object y during elaboration"* relationship.
+This graph is useful for the propagation of object state changes, e.g. in greek implementations.
+
+By calling `BuilderGeneralFactory`, one can create a `Builder` for a specific identifier.
+
+A `Builder` is a state machine with a linear sequence of states. Each call to `getRequestBatch()` produces a batch
+of identifiers requested for building the object managed by the builder, and advances the builder to the next state.
+When `getRequestBatch()` produces an empty batch, one must call `getObject()` to retrieve the built object. Then
+the `Builder` can be discarded.
+
+The elaboration process is configured via the `BuilderGeneralFactory`. E.g. the switch between loading IR curves
+from a data source in calibrated form and calibrating curves from instrument prices loaded from a data source, consists
+in calling `BuilderGeneralFactory::setFactory<InterestRateCurveId>()` with different instances
+of `BuilderFactory<InterestRateCurveId>`.
+
+
+## 3.6 Pricers
+
+### 3.6.1 Pricer
 
 `Pricer` is an interface for objects which manage the pricing of a collection of instruments.
-The `requiredModels()` pure virtual function returns the identifiers of the model objects required to price the instruments.
-The `pvs()` pure virtual function takes a `ModelContainer` reference and returns a map from `InstrumentId` to (pv,currency) pairs.
-The `ModelContainer` is expected to contain models for all the identifiers returned by `requiredModels()`.
+The `precedents()` pure virtual function returns the identifiers of the model objects required to price the instruments.
+The `pvs()` pure virtual function takes a `Container` reference and returns a map from `InstrumentId` to (pv,currency) pairs.
+The `Container` is expected to contain objects for all the identifiers returned by `precedents()`.
 
-### 3.5.2 S3Pricer
+### 3.6.2 S3Pricer
 
 `S3Pricer` is derived from `Pricer`. 
 It is able to price fixed and floating coupon bonds and credit default swaps.
@@ -241,10 +308,10 @@ It uses the S3 model, i.e. Schönbucher's "building blocks", to derive instrumen
 They are created by the `makeS3UnitPricer()` factory function, where we see the `kind()` and `static_cast` pattern
 mentioned in 3.2.1.
 I prefer this pattern to having a `makeS3UnitPricer()` virtual function on the `Instrument` interface because in the
-high-level architecture (see 2.2) the Instruments belongs to a lower layer than the Pricers layer.
-For example, we may want to build a PaymentProcessing component on top of Instruments, and that component would
+high-level architecture (see 2.2) the Instruments belong to a lower layer than the Pricers.
+For example, we may want to build a PaymentProcessing component above Instruments, and that component would
 have nothing to do with Pricers.
-So, it would be bad architecture to encumber `Instrument` with pricer-related member functions.
+So, it would be wrong to encumber `Instrument` with pricer-related member functions.
 The approach I have chosen is reminiscent of the Visitor design pattern.
 
 The `aggregateTenorStructures()` function analyses all the `S3ModelId`s required by the `S3UnitPricer`s.
@@ -257,48 +324,41 @@ that grouping instruments priced with the same method enables performance optimi
 that would not be possible if the `Pricer` interface were for single instruments rather than collections of
 instruments.
 
-### 3.5.3 IRPricer
-`IRPricer`is derived from `Pricer`. It is able to price fixed and floating bonds only.
+### 3.6.3 IRPricer
+`IRPricer`is derived from `Pricer`. It is able to price fixed and floating bonds and IR swaps.
 It uses the InterestRateCurve model.
 
 `IRPricer` is architecturally similar to `S3Pricer`.
-(Improvement: factorise the architectural commonalities of `IRPricer` and `S3Pricer`,
-e.g. define a `UnitPricer` interface and define a `PricerImpl` class template to generate
-`Pricer` derived classes aggregating `UnitPricer`s.)
 
-## 3.6 PricingEngine
+## 3.7 Metrics
 
-`PricingEngine` is a namespace with a single function
-```c++
-PvResult price(const InstrumentMap& instruments, const PricingConfiguration& config);
-```
-which returns instrument prices.
+There are just two metrics at this point: `PV` and `IRDelta`.
+
+The implementation of `IRDelta` is a straightforward combination of the features of `Pricer`, `Container` (overlays) and
+`InterestRateCurve`.
+It involves `propagateUpdate()` to rebuild the objects contained in the transitive closure of the shifted curves for the
+*"x is requested by y during elaboration"* relation.
+
+By configuring the `updateFunction` argument of `propagateUpdate()` we could implement more sophisticated scenarios 
+and greeks than plain bump and rebuild, e.g.
+* IR delta with respect to other instruments than those used in the original curve calibration;
+* SABR-alpha-constant, normal-vol-constant, log-normal-vol-constant IR delta.
+
+## 3.8 PricingEngine
+
+`PricingEngine` is a namespace with a single function which produces instrument PVs and risks.
 
 The `PricingConfiguration` class encapsulates the strategy for the selection of the pricer kind (IR or S3) to be applied to a given instrument.
 In the example program, two strategies are applied successively:
-* S3 for all instruments;
-* IR for instruments which support IR, nothing for the other instruments.
-
-`price()` calls `makePricers()`, which groups instruments by pricer kind and instantiates 
-an `IRPricer` and a `S3Pricer` with the ids of the instruments each must price.
-
-It instantiates a `ModelContainer` and calls `ModelFactory::populate()` to
-populate it with all the models required by the pricers.
-This function uses an interesting idiom (`std::visit()` and `overloaded` lambdas,
-cf. Stroustrup, *A Tour of C++*, 13.5.1) to dispatch the model creation
-to the adequate factory function based on the alternative contained in the
-`ModelId` variant.
-
-`ModelFactory` is unfinished work. It is meant to evolve into a mechanism to
-manage the dependencies between models. This can be useful for efficient recalculations
-on market data changes, e.g. for greeks, scenarios and live market data updates.
+* Use S3 for instruments which allow it, use IR otherwise (i.e. for IR swaps);
+* Use IR for instruments which allow it, use S3 otherwise (i.e. for CDSs);
 
 ## 4. General comments
 
 ### 4.1 Object ownership model
 
-All the objects allocated on the free-store are placed in `std::unique_ptr`s and moved into
-high-level containers retaining sole ownership: `Portfolio`, `ModelContainer`.
+All the objects allocated on the free-store are placed in `std::unique_ptr`s and moved into 
+containers retaining sole ownership, e.g. Container.
 
 Read-only access to these objects is provided by:
 * the containers, in the form of constant reference return values
@@ -315,4 +375,24 @@ This approach is consistent with C++ Core Guidelines R.21, F.7, R.37.
 
 All the maps are ordered maps.
 They should be hashed maps for efficiency.
+
+### 4.3 `IdT` types
+
+#### 4.3.1 Complexity
+
+A considerable amount of complexity arises from the ubiquity of `typename IdT` template
+parameters, and the frequent need to turn a `VariantId` into one of its alternative types.
+
+This complexity is contained in the framework, though: it does not leak to the interface.
+
+Maybe it could be reduced (or at least made more pleasant-looking) with template
+meta-programming techniques.
+
+#### 4.3.2 Efficiency
+
+`IdT` types are functionally fine as they are but not optimal for efficiency.
+In particular, `IdT` types involving free-store allocations (e.g. `S3ModelId`)
+are not ideal value-semantics types.
+This problem could be solved by representing the identifiers with an integer token
+mapping to the actual content of the identifier.
 
