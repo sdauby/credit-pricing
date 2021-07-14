@@ -25,7 +25,6 @@ Pricers/S3/FixedCouponBondPricing.cpp
 Pricers/S3/FloatingCouponBondPricing.cpp
 Pricers/S3/S3Pricer.cpp
 Pricers/PricingConfiguration.cpp
-Container/Container.cpp
 Container/VariantId.cpp
 Elaboration/Elaboration.cpp
 Elaboration/PricerBuilder.cpp

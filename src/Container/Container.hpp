@@ -2,28 +2,62 @@
 
 #include <memory>
 #include <vector>
+#include <set>
 
-template<typename IdT>
-using Object = typename IdT::ObjectType;
+#include "Container/IdTypes.hpp"
+#include "Container/ObjectTypes.hpp"
 
 class Container final {
 public:
-    ~Container();
-    Container();
-    Container(Container&& container);
-    Container& operator=(Container&& container);
-    explicit Container(const Container& baseContainer); // This is not a copy CTOR. Container is move-only.
+    Container() = default;
+    Container(Container&& container) = default;
+    Container& operator=(Container&& container) = default;
+    explicit Container(const Container& baseContainer) : baseContainer_(&baseContainer) {}
 
-    template<typename IdT>
-    Object<IdT>* get(const IdT& id) const;
+    template<class IdT>
+    Object<IdT>* get(const IdT& id) const
+    {
+        const auto& objectMap = objects<IdT>();
+        const auto& i = objectMap.find(id);
+        if (i==objectMap.end()) {
+            if (baseContainer_)
+                return baseContainer_->get(id);
+            else
+                return nullptr;
+        } else {
+            return i->second.get();
+        }
+    }
 
-    template<typename IdT>
-    void set(const IdT& id, std::unique_ptr<Object<IdT>>&& object);
+    template<class IdT>
+    void set(const IdT& id, std::unique_ptr<Object<IdT>>&& object)
+    {
+        objects<IdT>().emplace( std::pair{ id, std::move(object) } );
+    }
 
-    template<typename IdT>
-    std::vector<IdT> ids() const;
+    template<class IdT>
+    std::vector<IdT> ids() const
+    {
+        std::set<IdT> ids;
+        if (baseContainer_) {
+            const auto baseContainerIds = baseContainer_->ids<IdT>();
+            ids.insert(baseContainerIds.cbegin(),baseContainerIds.cend());
+        }
+        for (const auto& [id, object] : objects<IdT>())
+            ids.insert(id);
+        return std::vector<IdT>(ids.cbegin(),ids.cend());
+    }
 
 private:
-    struct Impl;
-    std::unique_ptr<Impl> pImpl;
+    template<class IdT>
+    using ObjectMap = std::map<IdT,std::unique_ptr<Object<IdT>>>;
+
+    template<class IdT>
+    const ObjectMap<IdT>& objects() const { return std::get<ObjectMap<IdT>>(objects_); }
+
+    template<class IdT>
+    ObjectMap<IdT>& objects() { return const_cast<ObjectMap<IdT>&>( std::as_const(*this).objects<IdT>() ); }
+
+    IdTypesTuple<ObjectMap> objects_;
+    const Container* baseContainer_ = nullptr;
 };

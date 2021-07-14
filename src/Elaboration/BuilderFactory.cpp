@@ -1,13 +1,7 @@
 #include "Elaboration/BuilderFactory.hpp"
 
 struct BuilderGeneralFactory::Impl {
-    std::tuple<
-        BuilderFactory<PricerId           >,
-        BuilderFactory<InstrumentId       >,
-        BuilderFactory<HazardRateCurveId  >,
-        BuilderFactory<InterestRateCurveId>,
-        BuilderFactory<S3ModelId          >
-    > factories;
+    IdTypesTuple<BuilderFactory> factories;
 };
 
 BuilderGeneralFactory::~BuilderGeneralFactory() = default;
