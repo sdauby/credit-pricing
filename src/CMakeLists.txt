@@ -32,7 +32,6 @@ Elaboration/InstrumentBuilder.cpp
 Elaboration/HazardRateCurveBuilder.cpp
 Elaboration/InterestRateCurveBuilder.cpp
 Elaboration/S3ModelBuilder.cpp
-Elaboration/BuilderFactory.cpp
 Elaboration/IdDag.cpp
 Metrics/PV.cpp
 Metrics/IRDelta.cpp

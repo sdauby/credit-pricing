@@ -5,26 +5,22 @@
 #include <memory>
 
 template<typename IdT>
-using BuilderFactory = std::function<std::unique_ptr<Builder<IdT>>(const IdT&)>;
+using BuilderFactory = std::function< std::unique_ptr<Builder<IdT>> (const IdT&) >;
 
 class BuilderGeneralFactory final {
 public:
-    ~BuilderGeneralFactory();
-    BuilderGeneralFactory();
-
     template<typename IdT> void setFactory(BuilderFactory<IdT> factory)
     {
-        getFactory<IdT>() = factory;
+        auto& factory_ = std::get<BuilderFactory<IdT>>(factories_);
+        factory_ = factory;
     }
 
     template<typename IdT> std::unique_ptr<Builder<IdT>> make(const IdT& id) const
     {
-        return getFactory<IdT>()(id);
+        const auto & factory_ = std::get<BuilderFactory<IdT>>(factories_);
+        return factory_(id);
     }
 
 private:
-    struct Impl;
-    std::unique_ptr<Impl> pImpl;
-
-    template<typename IdT> BuilderFactory<IdT>& getFactory() const;
+    IdTypesTuple<BuilderFactory> factories_;
 };
