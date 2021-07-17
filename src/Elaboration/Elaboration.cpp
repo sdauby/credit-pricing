@@ -4,6 +4,9 @@
 
 #include <set>
 #include <tuple>
+#include <typeinfo>
+#include <typeindex>
+#include <unordered_map>
 
 namespace {
 
@@ -32,17 +35,76 @@ void populate(const VariantId& id, BuilderBase& builder, Container& container)
 struct BuildState {
     std::vector<std::vector<VariantId>> requestBatches; // successive request batches
     std::unique_ptr<BuilderBase> builder; // made empty when building is complete and built object retrieved
+    int inclusionOrdinal = -1;
+    int populationOrdinal = -1;
 };
+
+void dump(const std::map<VariantId,BuildState>& builtStates,
+          std::ostream& os)
+{
+    const auto nodeOrdinal = [&] (const VariantId& id) {
+        return builtStates.at(id).inclusionOrdinal;
+    };
+
+    const auto getIndex = [] (const VariantId& id) {
+        return std::visit( [] (const auto& id) { return std::type_index(typeid(id)); }, id );
+    };
+
+    std::map<std::type_index,std::vector<int>> clusters;
+
+    os << "digraph g {\n";
+    os << "rankdir=LR;\n";
+    os << "node [ shape=box ];\n";
+    
+    for (const auto& [id,state] : builtStates) {
+        const auto ordinal = nodeOrdinal(id); 
+        os << "n" << ordinal 
+           << " [ " 
+           << "label=" 
+           << '"'
+           << state.inclusionOrdinal << "/" << state.populationOrdinal << "/" << to_string(id)
+           << '"'
+           << " ]\n";
+        clusters[getIndex(id)].push_back(ordinal);
+    }
+    
+    for (const auto& [id,state] : builtStates) {
+        for (size_t i=0, n=state.requestBatches.size(); i<n; ++i) {
+            for (const auto& request : state.requestBatches[i]) {
+                os << "n" << nodeOrdinal(id) 
+                   << " -> " 
+                   << "n" << nodeOrdinal(request) 
+                   << " [ label=" << '"' << i << '"' << " ]\n";
+            }
+        }
+    }
+    
+    int nextClusterOrdinal = 0;
+    for (const auto& [index,nodeOrdinals] : clusters) {
+        auto clusterOrdinal = nextClusterOrdinal++;
+        os << "subgraph cluster_" << clusterOrdinal << " { style=invis; ";
+        for (size_t i=0, n=nodeOrdinals.size(); i<n; ++i) {
+            if (i!=0)
+                os << ", ";
+            os << "n" << nodeOrdinals[i];
+        }
+        os << " }\n";
+    }
+    os << "}\n";
+}
 
 }
 
 std::tuple<Container,IdDag> 
 elaborateContainer(const std::vector<VariantId>& initialIds,
-                   const BuilderGeneralFactory& factory)
+                   const BuilderGeneralFactory& factory,
+                   std::ostream * os)
 {
     Container container;
     std::map<VariantId,BuildState> buildingStates;
     std::map<VariantId,BuildState> builtStates;
+    int nextInclusionOrdinal = 0;
+    int nextPopulationOrdinal = 0;
 
     std::function<void(const VariantId& id)> include;
 
@@ -52,6 +114,7 @@ elaborateContainer(const std::vector<VariantId>& initialIds,
         const auto& batch = state.requestBatches.back();
         if (batch.empty()) {
             populate(id,*state.builder,container);
+            state.populationOrdinal = nextPopulationOrdinal++;
             state.builder.reset();
             builtStates.insert(buildingStates.extract(id));
         }
@@ -65,6 +128,7 @@ elaborateContainer(const std::vector<VariantId>& initialIds,
         if (buildingStates.contains(id) || builtStates.contains(id))
             return;
         auto &state = buildingStates[id];
+        state.inclusionOrdinal = nextInclusionOrdinal++;
         state.builder = makeBuilder(factory,id);
         getNextBatch(id);
     };
@@ -84,6 +148,9 @@ elaborateContainer(const std::vector<VariantId>& initialIds,
             }
         }
     }
+
+    if (os)
+        dump(builtStates,*os);
 
     IdDag requestDag;
     for (const auto& [id,state] : builtStates) {
