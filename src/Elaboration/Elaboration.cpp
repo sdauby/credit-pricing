@@ -41,53 +41,52 @@ elaborateContainer(const std::vector<VariantId>& initialIds,
                    const BuilderGeneralFactory& factory)
 {
     Container container;
-    std::map<VariantId,BuildState> states;
+    std::map<VariantId,BuildState> buildingStates;
+    std::map<VariantId,BuildState> builtStates;
 
-    const std::function<void(const VariantId& id)> includeId = [&] (const VariantId& id) {
-        if (states.contains(id))
+    std::function<void(const VariantId& id)> include;
+
+    const auto getNextBatch = [&] (const VariantId& id) {
+        auto& state = buildingStates.at(id); 
+        state.requestBatches.push_back(state.builder->getRequestBatch(container));
+        const auto& batch = state.requestBatches.back();
+        if (batch.empty()) {
+            populate(id,*state.builder,container);
+            state.builder.reset();
+            builtStates.insert(buildingStates.extract(id));
+        }
+        else {
+            for (const auto& request : batch)
+                include(request);
+        }
+    };
+
+    include = [&] (const VariantId& id) {
+        if (buildingStates.contains(id) || builtStates.contains(id))
             return;
-        auto builder = makeBuilder(factory,id);
-        auto &state = states[id];
-        auto batch = builder->getRequestBatch(Container{});
-        for (const auto& request : batch)
-            includeId(request);
-        state.requestBatches.push_back(std::move(batch));
-        state.builder = std::move(builder);
+        auto &state = buildingStates[id];
+        state.builder = makeBuilder(factory,id);
+        getNextBatch(id);
     };
 
     for (const auto& id : initialIds)
-        includeId(id);
+        include(id);
 
-    while (true) {
-        auto allIdsPopulated = true;
-        for (auto& [id,state] : states) {
-            if (!state.builder)
-                continue;
+    while (!buildingStates.empty()) {
+        for (auto i=buildingStates.begin(), e=buildingStates.end(); i!=e;) {
+            auto& [id,state] = *i;
+            ++i;
 
-            const auto& currentBatch = state.requestBatches.back();
-
-            if (currentBatch.empty()) {
-                populate(id,*state.builder,container);
-                state.builder.reset();
-                continue;
-            }
-
-            allIdsPopulated = false;
-            
+            const auto& currentBatch = state.requestBatches.back();            
             if (std::all_of( currentBatch.cbegin(), currentBatch.cend(),
-                             [&] (const auto& request) { return !states[request].builder; } ) ) {
-                auto nextBatch = state.builder->getRequestBatch(container);
-                for (const auto& request : nextBatch)
-                    includeId(request);
-                state.requestBatches.push_back(std::move(nextBatch));
+                             [&] (const auto& request) { return builtStates.contains(request); } ) ) {
+                getNextBatch(id);
             }
         }
-        if (allIdsPopulated)
-            break;
     }
 
     IdDag requestDag;
-    for (const auto& [id,state] : states) {
+    for (const auto& [id,state] : builtStates) {
         auto& requests = requestDag[id];
         for (const auto& batch : state.requestBatches)
             requests.insert(requests.end(),batch.cbegin(),batch.cend());
