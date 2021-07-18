@@ -204,8 +204,7 @@ opens the possibility of safe and efficient multi-threading.
 
 ### 3.4.4 Flexibility
 
-`Container` is agnostic and unobtrusive with respect to the types of the objects
-it may contain (e.g. it does not require them to inherit from a specific abstract base class).
+`Container` is non-intrusive with respect to the types of the objects it may contain (e.g. it does not require them to inherit from a specific abstract base class).
 So, we can easily integrate any object type in `Container`: instruments, models, static data representations,
 configurations, etc.
 For example, the `S3Model` type contains no more and no less than the implementation of Schönbucher's
@@ -237,7 +236,7 @@ So, we will have to get the identifiers of the IR curves and hazard rate curves 
 of the S3 models, load them, then create the S3 models.
 
 At some point, we will have set up all these objects in the container.
-Then, the elaboration process will be complete and we will be available to move on to evaluating
+Then, the elaboration process will be complete and we will be able to move on to evaluating
 the instrument PVs and greeks.
 
 The problem of container elaboration is easy to overlook in the early stages of developing a multi-asset
@@ -288,6 +287,18 @@ from a data source in calibrated form and calibrating curves from instrument pri
 in calling `BuilderGeneralFactory::setFactory<InterestRateCurveId>()` with different instances
 of `BuilderFactory<InterestRateCurveId>`.
 
+### 3.5.4 Example
+
+The following graph shows the steps of an example elaboration.
+
+Each node is labelled with 3 /-separated components:
+* the *inclusion ordinal* indicates the order in which objects are requested;
+* the *population ordinal* indicates the order in which the built objects are added to the container;
+* the object identifier.
+
+Each edge from object *x* to object *y* and labelled with number *i* means: *"object x requested object y in its i-th request batch"*.
+
+![Elaboration](https://github.com/sdauby/credit-pricing/blob/main/svg/elaboration.svg "Elaboration")
 
 ## 3.6 Pricers
 
