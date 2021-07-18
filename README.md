@@ -389,18 +389,6 @@ They should be hashed maps for efficiency.
 
 ### 4.3 `IdT` types
 
-#### 4.3.1 Complexity
-
-A considerable amount of complexity arises from the ubiquity of `typename IdT` template
-parameters, and the frequent need to turn a `VariantId` into one of its alternative types.
-
-This complexity is contained in the framework, though: it does not leak to the interface.
-
-Maybe it could be reduced (or at least made more pleasant-looking) with template
-meta-programming techniques.
-
-#### 4.3.2 Efficiency
-
 `IdT` types are functionally fine as they are but not optimal for efficiency.
 In particular, `IdT` types involving free-store allocations (e.g. `S3ModelId`)
 are not ideal value-semantics types.
