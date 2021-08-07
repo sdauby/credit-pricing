@@ -45,7 +45,7 @@ namespace {
         auto pv = 0.0;
         
         // fixed coupons
-        for (auto n=1; n<=N; ++n) {
+        for (auto n=1u; n<=N; ++n) {
             const auto d = dayCountFactor(t[n-1],t[n]);
             pv += c * d * df(t[n]);
         }
@@ -81,7 +81,7 @@ namespace {
         pv += df(t[0]) - df(t[N]);
         
         // spreads
-        for (auto n=1; n<=N; ++n) {
+        for (auto n=1u; n<=N; ++n) {
             const auto d = dayCountFactor(t[n-1],t[n]);
             pv += s * d * df(t[n]);
         }

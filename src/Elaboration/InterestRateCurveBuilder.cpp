@@ -41,8 +41,8 @@ namespace {
         
         auto curve = calibration.calibrate(swapRates);
         
-        const auto& instruments = calibration.instruments();
-        for (auto i=0; i<N; ++i)
+        [[maybe_unused]] const auto& instruments = calibration.instruments();
+        for (auto i=0u; i<N; ++i)
             assert(std::fabs( swapRate(*instruments[i],*curve) - swapRates[i] ) < 1e-8);
 
         return curve;

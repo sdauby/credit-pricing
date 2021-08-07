@@ -27,7 +27,7 @@ double pv(const FixedCouponBond& bond, const S3Model& model)
 
     // coupons
     const auto c = data.c;
-    for (auto n=1; n<=N; ++n) {
+    for (auto n=1u; n<=N; ++n) {
         const auto d = dayCountFactor(T[k[n-1]],T[k[n]]); // delta'_{n-1}
         pv += c * d * model.Bbar(k[n]);
     }

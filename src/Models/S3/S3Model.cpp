@@ -9,7 +9,7 @@ S3Model::S3Model(std::vector<Date>&& T,
              H_(std::move(H)),
              pi_(pi)
 {
-    const auto K = T_.size() - 1;
+    [[maybe_unused]] const auto K = T_.size() - 1;
     assert(F_.size() == K && "F must have K elements");
     assert(H_.size() == K && "H must have K elements");
 }

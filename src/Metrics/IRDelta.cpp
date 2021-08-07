@@ -32,7 +32,9 @@ std::map<InstrumentId,Result> IRDelta::compute(const Container& container) const
     std::map<InstrumentId,Result> results;
 
     const UpdateFunction update = 
-        [&factory = factory_] (Container& container, const VariantId& id, const std::vector<VariantId>& dirtyPrecedents) {
+        [&factory = factory_] (Container& container,
+                               const VariantId& id,
+                               [[maybe_unused]] const std::vector<VariantId>& dirtyPrecedents) {
             std::visit( [&] (const auto& id) -> void {
                 const auto builder = factory.make(id);
                 while (!builder->getRequestBatch(container).empty()) {}
@@ -56,8 +58,8 @@ std::map<InstrumentId,Result> IRDelta::compute(const Container& container) const
                 }
             }
         }
-        for (auto i0=pvs[0].cbegin(), e0=pvs[0].cend(),
-                  i1=pvs[1].cbegin(), e1=pvs[1].cend(); i0!=e0; ++i0, ++i1) {
+        for ([[maybe_unused]] auto i0=pvs[0].cbegin(), e0=pvs[0].cend(),
+                                   i1=pvs[1].cbegin(), e1=pvs[1].cend(); i0!=e0; ++i0, ++i1) {
             assert(i1!=e1);
 
             const auto& [instrumentId0, pv0] = *i0;

@@ -9,7 +9,7 @@ IRCurveCalibration::IRCurveCalibration(InstrumentVector&& instruments) :
     const auto N = instruments_.size();
     assert(N>0);
     T_.reserve(N-1);
-    for (auto i=0; i<N-1; ++i)
+    for (auto i=0u; i<N-1; ++i)
         T_.push_back(instruments_[i]->data().t.back());
     assert(is_sorted(T_.begin(),T_.end()));
 }
@@ -21,7 +21,7 @@ std::unique_ptr<InterestRateCurve> IRCurveCalibration::calibrate(const PriceVect
 
     auto curve = make_unique<InterestRateCurve>(std::vector<Date>(T_),std::vector<double>(N,0.0));
 
-    for (auto i=0; i<N; i++) {
+    for (auto i=0u; i<N; i++) {
         const auto f = [&curve = *curve, i, &instrument = *instruments_[i], price = prices[i]] (double r) {
             curve.r_[i] = r;
             return swapRate(instrument,curve) - price;

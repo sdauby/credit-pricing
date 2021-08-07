@@ -7,7 +7,7 @@ std::vector<int> indices(const std::vector<Date>& t, const std::vector<Date>& T)
     
     const auto N = T.size() - 1;
     
-    auto k = 0; // index in T
+    auto k = 0u; // index in T
     for (const auto& x : t) {
         while (k<=N && T[k]<x)
             ++k;

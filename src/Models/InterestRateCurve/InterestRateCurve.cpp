@@ -18,8 +18,8 @@ double InterestRateCurve::discountFactor(Date t, Date u) const
     assert(t<=u && "bad discount factor arguments");
 
     const auto locate = [&T = T_] (Date x) {
-        const auto N = T.size();
-        const auto i = std::lower_bound(T.cbegin(),T.cend(),x) - T.cbegin();
+        [[maybe_unused]] const auto N = T.size();
+        const auto i = unsigned(std::lower_bound(T.cbegin(),T.cend(),x) - T.cbegin());
         assert(i==N || x<=T[i]);
         assert(i==0 || T[i-1]<x);
         return i;

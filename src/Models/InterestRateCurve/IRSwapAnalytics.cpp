@@ -15,7 +15,7 @@ double annuity(const IRSwap& swap, const InterestRateCurve& curve)
     const auto N = t.size();
 
     auto annuity = 0.0;
-    for (auto i=1; i<N; ++i)
+    for (auto i=1u; i<N; ++i)
         annuity += dayCountFactor(t[i-1],t[i]) * df(t[i]);
     
     return annuity;

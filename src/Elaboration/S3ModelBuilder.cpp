@@ -41,7 +41,7 @@ std::unique_ptr<S3Model> S3ModelBuilder::getObject(const Container& container)
     const auto K = T.size()-1;
     std::vector<double> F(K);
     std::vector<double> H(K);
-    for (auto k=0; k<K; ++k) {
+    for (auto k=0u; k<K; ++k) {
         F[k] = forwardRate(*irCurve,T[k],T[k+1]);
         H[k] = hazardRate(*hrCurve,T[k],T[k+1]);
     }

@@ -27,7 +27,7 @@ double pv(const Cds& cds, const S3Model& model)
 
     // fee leg
     const auto s = data.s;
-    for (auto n=1; n<=N; ++n) {
+    for (auto n=1u; n<=N; ++n) {
         const auto d = dayCountFactor(T[k[n-1]],T[k[n]]); // delta'_{n-1}
         pv -= s * d * model.Bbar(k[n]); 
     }

@@ -27,4 +27,5 @@ double solve(const Function& f, double x, double y)
             return z;
     }
     assert(false && "too many iterations");
+    return {};
 }

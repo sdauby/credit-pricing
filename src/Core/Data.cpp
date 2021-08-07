@@ -9,7 +9,7 @@ namespace Data {
         const Issuer C{"C"s};
     }
 
-    double recoveryRate(const Issuer& issuer, Currency ccy) 
+    double recoveryRate(const Issuer&, Currency) 
     { 
         return 0.5; 
     }

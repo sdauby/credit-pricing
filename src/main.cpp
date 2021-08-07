@@ -39,6 +39,7 @@ namespace {
                 case 6: return make<IRSwap>(Ccy::USD, std::vector<Date>{ 0y, 1y, 2y, 3y, 4y, 5y}, 0.02);
                 default:
                     assert(!"bad instrument id");
+                    return {};
             }
         };
 

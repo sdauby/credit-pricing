@@ -5,6 +5,8 @@ project(credit-pricing)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+add_compile_options(-Wall -Wextra -pedantic -Werror)
+
 include_directories(.)
 
 add_executable(main
