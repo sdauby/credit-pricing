@@ -22,8 +22,7 @@ public:
     }
 
 private:
-    template<typename... IdTs> static std::tuple<BuilderFactory<IdTs>...> auxBuilderFactoryTuple(typelist<IdTs...>);
-    using BuilderFactoryTuple = decltype(auxBuilderFactoryTuple(IdTypes{}));
-
+    template<typename... IdTs> using BuilderFactoryTupleT = std::tuple<BuilderFactory<IdTs>...>;
+    using BuilderFactoryTuple = ApplyToIdTypes<BuilderFactoryTupleT>;
     BuilderFactoryTuple factories_;
 };

@@ -58,8 +58,8 @@ private:
     template<class IdT>
     ObjectMap<IdT>& objects() { return const_cast<ObjectMap<IdT>&>( std::as_const(*this).objects<IdT>() ); }
 
-    template<typename... IdTs> static std::tuple<ObjectMap<IdTs>...> auxObjectMapTuple(typelist<IdTs...>);
-    using ObjectMapTuple = decltype(auxObjectMapTuple(IdTypes{}));
+    template<typename... IdTs> using ObjectMapTupleT = std::tuple<ObjectMap<IdTs>...>;
+    using ObjectMapTuple = ApplyToIdTypes<ObjectMapTupleT>;
 
     ObjectMapTuple objects_;
     const Container* baseContainer_ = nullptr;
