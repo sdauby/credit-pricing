@@ -10,27 +10,15 @@
 #include "Container/InterestRateCurveId.hpp"
 #include "Container/S3ModelId.hpp"
 
-template<class... IdTypes> struct IdTypesAuxTemplate {
-    
-    template<template<class> class UnitT>
-    using tuple = std::tuple<UnitT<IdTypes>...>;
-    
-    using variant = std::variant<IdTypes...>;
+template<typename... Ts> struct typelist {};
 
-};
-
-using IdTypesAux = IdTypesAuxTemplate<
+using IdTypes = typelist<
     PricerId           ,
     InstrumentId       ,
     InterestRateCurveId,
     HazardRateCurveId  ,
     S3ModelId
 >;
-
-template<template<class> class UnitT>
-using IdTypesTuple = IdTypesAux::tuple<UnitT>;
-
-using VariantId = IdTypesAux::variant;
 
 template<typename IdT>
 using Object = typename IdT::ObjectType;
