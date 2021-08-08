@@ -3,9 +3,9 @@
 #include "Instruments/Instrument.hpp"
 
 InstrumentBuilder::InstrumentBuilder(const InstrumentFactory& makeInstrument,
-                                           const InstrumentId& id) : 
-                                           makeInstrument_(makeInstrument),
-                                           id_(id)
+                                     const InstrumentId& id) : 
+                                        makeInstrument_(makeInstrument),
+                                        id_(id)
 {}
 
 std::vector<VariantId> InstrumentBuilder::getRequestBatch(const Container&)

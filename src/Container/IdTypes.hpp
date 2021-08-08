@@ -1,39 +1,44 @@
 #pragma once
 
-// The IdTypes types are one-to-one with the ObjectTypes types.
-
-#include <variant>
-
 #include "Container/PricerId.hpp"
 #include "Container/InstrumentId.hpp"
 #include "Container/HazardRateCurveId.hpp"
 #include "Container/InterestRateCurveId.hpp"
 #include "Container/S3ModelId.hpp"
 
+template<typename T>
+concept IdType = 
+    requires { typename T::ObjectType; }
+    && requires (T x) 
+    { 
+        x < x;
+        to_string_(x);
+    };
+
 namespace detail {
 
-    template<typename... Ts> struct typelist {};
+    template<IdType... Ts> struct typelist {};
 
     using IdTypes = typelist<
         PricerId           ,
         InstrumentId       ,
         InterestRateCurveId,
         HazardRateCurveId  ,
-        S3ModelId
+        S3ModelId          
     >;
 
-    template<template<typename...> typename T, typename typelist> 
+    template<template<IdType...> typename T, typename typelist> 
     struct Aux;
 
-    template<template<typename...> typename T, typename... IdTs> 
+    template<template<IdType...> typename T, IdType... IdTs> 
     struct Aux<T, typelist<IdTs...>> { using type = T<IdTs...>; };
 
-    template <template<typename...> typename T>
+    template <template<IdType...> typename T>
     using ApplyToIdTypes = typename Aux<T, IdTypes>::type;
 
 }
 
-template <template<typename...> typename T>
+template <template<IdType...> typename T>
 using ApplyToIdTypes = detail::ApplyToIdTypes<T>;
 
 template<typename IdT>

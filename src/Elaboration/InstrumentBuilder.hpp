@@ -2,7 +2,7 @@
 
 #include "Elaboration/Builder.hpp"
 
-using InstrumentFactory = std::function<std::unique_ptr<Instrument>(const InstrumentId&)>;
+using InstrumentFactory = std::function< std::unique_ptr<Instrument> (const InstrumentId&) >;
 
 class InstrumentBuilder : public Builder<InstrumentId> {
 public:

@@ -14,7 +14,7 @@ public:
     Container& operator=(Container&& container) = default;
     explicit Container(const Container& baseContainer) : baseContainer_(&baseContainer) {}
 
-    template<class IdT>
+    template<IdType IdT>
     Object<IdT>* get(const IdT& id) const
     {
         const auto& objectMap = objects<IdT>();
@@ -29,13 +29,13 @@ public:
         }
     }
 
-    template<class IdT>
+    template<IdType IdT>
     void set(const IdT& id, std::unique_ptr<Object<IdT>>&& object)
     {
         objects<IdT>().emplace( std::pair{ id, std::move(object) } );
     }
 
-    template<class IdT>
+    template<IdType IdT>
     std::vector<IdT> ids() const
     {
         std::set<IdT> ids;
@@ -49,16 +49,16 @@ public:
     }
 
 private:
-    template<class IdT>
+    template<IdType IdT>
     using ObjectMap = std::map<IdT,std::unique_ptr<Object<IdT>>>;
 
-    template<class IdT>
+    template<IdType IdT>
     const ObjectMap<IdT>& objects() const { return std::get<ObjectMap<IdT>>(objects_); }
 
-    template<class IdT>
+    template<IdType IdT>
     ObjectMap<IdT>& objects() { return const_cast<ObjectMap<IdT>&>( std::as_const(*this).objects<IdT>() ); }
 
-    template<typename... IdTs> using ObjectMapTupleT = std::tuple<ObjectMap<IdTs>...>;
+    template<IdType... IdTs> using ObjectMapTupleT = std::tuple<ObjectMap<IdTs>...>;
     using ObjectMapTuple = ApplyToIdTypes<ObjectMapTupleT>;
 
     ObjectMapTuple objects_;

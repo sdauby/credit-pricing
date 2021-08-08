@@ -3,6 +3,7 @@
 #include "Container/IdTypes.hpp"
 
 #include <string>
+#include <variant>
 
 using VariantId = ApplyToIdTypes<std::variant>;
 

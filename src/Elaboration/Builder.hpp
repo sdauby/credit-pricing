@@ -16,7 +16,7 @@ public:
     virtual std::vector<VariantId> getRequestBatch(const Container& container) = 0;
 };
 
-template<typename IdT>
+template<IdType IdT>
 class Builder : public BuilderBase {
 public:
     virtual std::unique_ptr<Object<IdT>> getObject(const Container& container) = 0;
