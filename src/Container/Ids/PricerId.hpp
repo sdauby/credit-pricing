@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Pricers/PricerKind.hpp"
-#include "Container/IdTypes/InstrumentId.hpp"
+#include "Container/Ids/InstrumentId.hpp"
 
 #include <tuple>
 #include <vector>

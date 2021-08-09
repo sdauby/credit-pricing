@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Currency.hpp"
-#include "Container/IdTypes/InterestRateCurveId.hpp"
+#include "Container/Ids/InterestRateCurveId.hpp"
 
 #include <map>
 #include <vector>

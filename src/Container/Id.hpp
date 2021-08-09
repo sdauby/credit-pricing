@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Container/IdTypes/PricerId.hpp"
-#include "Container/IdTypes/InstrumentId.hpp"
-#include "Container/IdTypes/HazardRateCurveId.hpp"
-#include "Container/IdTypes/InterestRateCurveId.hpp"
-#include "Container/IdTypes/S3ModelId.hpp"
+#include "Container/Ids/PricerId.hpp"
+#include "Container/Ids/InstrumentId.hpp"
+#include "Container/Ids/HazardRateCurveId.hpp"
+#include "Container/Ids/InterestRateCurveId.hpp"
+#include "Container/Ids/S3ModelId.hpp"
 
 template<typename T>
 concept Id = 

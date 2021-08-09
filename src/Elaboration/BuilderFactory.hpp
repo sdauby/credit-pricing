@@ -17,7 +17,7 @@ public:
 
     template<Id IdT> std::unique_ptr<Builder<IdT>> make(const IdT& id) const
     {
-        const auto & factory_ = std::get<BuilderFactory<IdT>>(factories_);
+        const auto& factory_ = std::get<BuilderFactory<IdT>>(factories_);
         return factory_(id);
     }
 

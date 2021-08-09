@@ -1,7 +1,7 @@
 #include "Pricers/IR/IRPricer.hpp"
 
 #include "Container/Container.hpp"
-#include "Container/IdTypes/InterestRateCurveId.hpp"
+#include "Container/Ids/InterestRateCurveId.hpp"
 #include "Instruments/Instrument.hpp"
 #include "Instruments/FixedCouponBond.hpp"
 #include "Instruments/FloatingCouponBond.hpp"

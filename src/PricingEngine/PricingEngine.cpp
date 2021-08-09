@@ -1,7 +1,7 @@
 #include "PricingEngine/PricingEngine.hpp"
 
 #include "Container/Container.hpp"
-#include "Container/IdTypes/PricerId.hpp"
+#include "Container/Ids/PricerId.hpp"
 #include "Elaboration/Elaboration.hpp"
 #include "Elaboration/PricerBuilder.hpp"
 #include "Elaboration/InstrumentBuilder.hpp"

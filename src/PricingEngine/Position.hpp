@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Container/IdTypes/InstrumentId.hpp"
+#include "Container/Ids/InstrumentId.hpp"
 
 struct Position {
     double notional = 0.0;
