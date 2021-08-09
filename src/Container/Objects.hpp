@@ -1,7 +1,6 @@
 #pragma once
 
-// Convenience header to include the headers of all the ObjectType types.
-// They are one-to-one with the Id types.
+// Convenience header to include the headers of Object<IdT> for all Id types.
 
 #include "Pricers/Pricer.hpp"
 #include "Instruments/Instrument.hpp"

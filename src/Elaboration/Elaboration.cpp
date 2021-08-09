@@ -1,7 +1,5 @@
 #include "Elaboration/Elaboration.hpp"
 
-#include "Container/ObjectTypes.hpp"
-
 #include <set>
 #include <tuple>
 #include <typeinfo>
