@@ -1,25 +1,25 @@
 #pragma once
 
-#include "Container/PricerId.hpp"
-#include "Container/InstrumentId.hpp"
-#include "Container/HazardRateCurveId.hpp"
-#include "Container/InterestRateCurveId.hpp"
-#include "Container/S3ModelId.hpp"
+#include "Container/IdTypes/PricerId.hpp"
+#include "Container/IdTypes/InstrumentId.hpp"
+#include "Container/IdTypes/HazardRateCurveId.hpp"
+#include "Container/IdTypes/InterestRateCurveId.hpp"
+#include "Container/IdTypes/S3ModelId.hpp"
 
 template<typename T>
 concept IdType = 
-    requires { typename T::ObjectType; }
-    && requires (T x) 
+    requires (T x) 
     { 
+        typename T::ObjectType;
         x < x;
-        to_string_(x);
+        to_string(x);
     };
 
 namespace detail {
 
-    template<IdType... Ts> struct typelist {};
+    template<IdType...> struct IdTypeList {};
 
-    using IdTypes = typelist<
+    using AllIdTypes = IdTypeList<
         PricerId           ,
         InstrumentId       ,
         InterestRateCurveId,
@@ -27,19 +27,19 @@ namespace detail {
         S3ModelId          
     >;
 
-    template<template<IdType...> typename T, typename typelist> 
+    template<template<IdType...> typename T, typename IdTypeList> 
     struct Aux;
 
     template<template<IdType...> typename T, IdType... IdTs> 
-    struct Aux<T, typelist<IdTs...>> { using type = T<IdTs...>; };
+    struct Aux<T, IdTypeList<IdTs...>> { using type = T<IdTs...>; };
 
     template <template<IdType...> typename T>
-    using ApplyToIdTypes = typename Aux<T, IdTypes>::type;
+    using WithAllIdTypes = typename Aux<T, AllIdTypes>::type;
 
 }
 
 template <template<IdType...> typename T>
-using ApplyToIdTypes = detail::ApplyToIdTypes<T>;
+using WithAllIdTypes = detail::WithAllIdTypes<T>;
 
-template<typename IdT>
+template<IdType IdT>
 using Object = typename IdT::ObjectType;

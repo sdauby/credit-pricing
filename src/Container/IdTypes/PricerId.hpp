@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Pricers/PricerKind.hpp"
-#include "Container/InstrumentId.hpp"
+#include "Container/IdTypes/InstrumentId.hpp"
 
 #include <tuple>
 #include <vector>
@@ -20,13 +20,13 @@ inline bool operator<(const PricerId& x,
     return std::tuple{x.kind,x.instruments} < std::tuple{y.kind,y.instruments};
 }
 
-inline std::string to_string_(const PricerId& id)
+inline std::string to_string(const PricerId& id)
 {
     std::string s = "Pricer{";
     s += name(id.kind);
     s += ",[";
     for (const auto& instrument : id.instruments)
-        s += to_string_(instrument) + ",";
+        s += to_string(instrument) + ",";
     s += "]}";
     return s;
 }

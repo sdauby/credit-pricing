@@ -23,6 +23,6 @@ public:
 
 private:
     template<IdType... IdTs> using BuilderFactoryTupleT = std::tuple<BuilderFactory<IdTs>...>;
-    using BuilderFactoryTuple = ApplyToIdTypes<BuilderFactoryTupleT>;
+    using BuilderFactoryTuple = WithAllIdTypes<BuilderFactoryTupleT>;
     BuilderFactoryTuple factories_;
 };

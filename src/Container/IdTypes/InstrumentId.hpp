@@ -20,7 +20,7 @@ inline bool operator==(const InstrumentId& x, const InstrumentId& y)
     return x.k == y.k;
 }
 
-inline std::string to_string_(const InstrumentId& id)
+inline std::string to_string(const InstrumentId& id)
 {
     return "Instrument{" + std::to_string(id.k) + "}";    
 }

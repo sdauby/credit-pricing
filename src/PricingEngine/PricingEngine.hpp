@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Container/InstrumentId.hpp"
+#include "Container/IdTypes/InstrumentId.hpp"
 #include "Elaboration/InstrumentBuilder.hpp"
 #include "Metrics/Result.hpp"
 

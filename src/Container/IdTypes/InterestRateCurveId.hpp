@@ -17,7 +17,7 @@ inline bool operator<(const InterestRateCurveId& x,
     return x.ccy < y.ccy;
 }
 
-inline std::string to_string_(const InterestRateCurveId& id)
+inline std::string to_string(const InterestRateCurveId& id)
 {
     std::string s = "InterestRateCurve{";
     s += + name(id.ccy);

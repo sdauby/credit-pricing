@@ -5,6 +5,6 @@
 #include <string>
 #include <variant>
 
-using VariantId = ApplyToIdTypes<std::variant>;
+using VariantId = WithAllIdTypes<std::variant>;
 
 std::string to_string(const VariantId& id);

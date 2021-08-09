@@ -1,6 +1,6 @@
 #include "Pricers/S3/FloatingCouponBondPricing.hpp"
 
-#include "Container/S3ModelId.hpp"
+#include "Container/IdTypes/S3ModelId.hpp"
 #include "Models/S3/S3Model.hpp"
 #include "Models/S3/Utilities.hpp"
 

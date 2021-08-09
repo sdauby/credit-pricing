@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Container/PositionId.hpp"
+#include "Container/IdTypes/PositionId.hpp"
 #include "PricingEngine/Position.hpp"
 #include "Elaboration/InstrumentBuilder.hpp"
 

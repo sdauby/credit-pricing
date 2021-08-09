@@ -15,7 +15,7 @@ inline bool operator<(const PositionId& x,
     return x.k < y.k;
 }
 
-inline std::string to_string_(const PositionId& id)
+inline std::string to_string(const PositionId& id)
 {
     return "PositionId{" + std::to_string(id.k) + "}";    
 }

@@ -59,7 +59,7 @@ private:
     ObjectMap<IdT>& objects() { return const_cast<ObjectMap<IdT>&>( std::as_const(*this).objects<IdT>() ); }
 
     template<IdType... IdTs> using ObjectMapTupleT = std::tuple<ObjectMap<IdTs>...>;
-    using ObjectMapTuple = ApplyToIdTypes<ObjectMapTupleT>;
+    using ObjectMapTuple = WithAllIdTypes<ObjectMapTupleT>;
 
     ObjectMapTuple objects_;
     const Container* baseContainer_ = nullptr;
