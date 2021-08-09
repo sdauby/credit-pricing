@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Container/IdTypes.hpp"
+#include "Container/Id.hpp"
 
 #include <string>
 #include <variant>

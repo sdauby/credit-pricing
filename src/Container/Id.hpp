@@ -7,7 +7,7 @@
 #include "Container/IdTypes/S3ModelId.hpp"
 
 template<typename T>
-concept IdType = 
+concept Id = 
     requires (T x) 
     { 
         typename T::ObjectType;
@@ -15,9 +15,12 @@ concept IdType =
         to_string(x);
     };
 
+template<Id IdT>
+using Object = typename IdT::ObjectType;
+
 namespace detail {
 
-    template<IdType...> struct IdTypeList {};
+    template<Id...> struct IdTypeList {};
 
     using AllIdTypes = IdTypeList<
         PricerId           ,
@@ -27,19 +30,18 @@ namespace detail {
         S3ModelId          
     >;
 
-    template<template<IdType...> typename T, typename IdTypeList> 
+    template<template<Id...> typename T, typename IdTypeList> 
     struct Aux;
 
-    template<template<IdType...> typename T, IdType... IdTs> 
+    template<template<Id...> typename T, Id... IdTs> 
     struct Aux<T, IdTypeList<IdTs...>> { using type = T<IdTs...>; };
 
-    template <template<IdType...> typename T>
+    template <template<Id...> typename T>
     using WithAllIdTypes = typename Aux<T, AllIdTypes>::type;
 
 }
 
-template <template<IdType...> typename T>
+// Instantiate template T with all Id types.
+template <template<Id...> typename T>
 using WithAllIdTypes = detail::WithAllIdTypes<T>;
 
-template<IdType IdT>
-using Object = typename IdT::ObjectType;
