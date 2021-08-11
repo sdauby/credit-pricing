@@ -19,19 +19,19 @@ GeneralPricer::GeneralPricer(const Container& container,
         switch (pricerKind) {
             case PricerKind::S3: {
                 const auto pricer = S3Pricer( container, { instrumentId } );
-                const auto precedents = pricer.precedents();
-                assert(precedents.size() == 1);
-                const auto& precedent = precedents.front();
-                auto s3ModelId = std::get<S3ModelId>(precedent);
+                const auto requests = pricer.requests();
+                assert(requests.size() == 1);
+                const auto& request = requests.front();
+                auto s3ModelId = std::get<S3ModelId>(request);
                 s3ModelId.tenorStructure.clear();
                 return s3ModelId;
             }
             case PricerKind::IR: {
                 const auto pricer = IRPricer( container, { instrumentId } );
-                const auto precedents = pricer.precedents();
-                assert(precedents.size() == 1);
-                const auto& precedent = precedents.front();
-                return std::get<InterestRateCurveId>(precedent);
+                const auto requests = pricer.requests();
+                assert(requests.size() == 1);
+                const auto& request = requests.front();
+                return std::get<InterestRateCurveId>(request);
             }
             default:
                 assert(!"bad pricer kind");
@@ -54,7 +54,7 @@ GeneralPricer::GeneralPricer(const Container& container,
     }
 }
 
-std::vector<VariantId> GeneralPricer::precedents() const
+std::vector<VariantId> GeneralPricer::requests() const
 {
     return std::vector<VariantId>(pricers_.begin(),pricers_.end());
 }

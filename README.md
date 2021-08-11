@@ -305,9 +305,9 @@ Each edge from object *x* to object *y* and labelled with number *i* means: *"ob
 ### 3.6.1 Pricer
 
 `Pricer` is an interface for objects which manage the pricing of a collection of instruments.
-The `precedents()` pure virtual function returns the identifiers of the model objects required to price the instruments.
+The `requests()` pure virtual function returns the identifiers of the model objects required to price the instruments.
 The `pvs()` pure virtual function takes a `Container` reference and returns a map from `InstrumentId` to (pv,currency) pairs.
-The `Container` is expected to contain objects for all the identifiers returned by `precedents()`.
+The `Container` is expected to contain objects for all the identifiers returned by `requests()`.
 
 ### 3.6.2 S3Pricer
 

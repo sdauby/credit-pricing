@@ -11,7 +11,7 @@ public:
                   const PricingConfiguration& config);
 
 private:
-    virtual std::vector<VariantId> precedents() const override;
+    virtual std::vector<VariantId> requests() const override;
     virtual std::map<InstrumentId,PV> pvs(const Container& container) const override;
 
     std::vector<PricerId> pricers_;

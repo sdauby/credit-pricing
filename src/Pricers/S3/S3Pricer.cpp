@@ -73,7 +73,7 @@ S3Pricer::S3Pricer(const Container& container, const std::vector<InstrumentId>& 
     aggregateTenorStructures(s3ModelIds_);
 }
 
-std::vector<VariantId> S3Pricer::precedents() const
+std::vector<VariantId> S3Pricer::requests() const
 {
     std::set<S3ModelId> s3ModelIds;
     for (const auto& [instrumentId,s3ModelId] : s3ModelIds_)

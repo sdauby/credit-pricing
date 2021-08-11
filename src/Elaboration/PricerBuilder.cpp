@@ -30,9 +30,9 @@ std::vector<VariantId> PricerBuilder::getRequestBatch(const Container& container
                     pricer_ = std::make_unique<S3Pricer>(container,id_.instruments); 
                     break;
             }
-            state_ = State::PricerPrecedentsRequested;
-            return pricer_->precedents();
-        case State::PricerPrecedentsRequested:
+            state_ = State::PricerRequestsRequested;
+            return pricer_->requests();
+        case State::PricerRequestsRequested:
             state_ = State::AllRequestsDone;
             return {};
         case State::AllRequestsDone:

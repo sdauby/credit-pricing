@@ -19,7 +19,7 @@ private:
     enum class State { 
         Initial, 
         InstrumentsRequested, 
-        PricerPrecedentsRequested, 
+        PricerRequestsRequested, 
         AllRequestsDone,
     };
     State state_ = State::Initial;
