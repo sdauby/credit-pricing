@@ -13,6 +13,7 @@ class S3Pricer : public Pricer {
 public:
     S3Pricer(const Container& container, const std::vector<InstrumentId>& instrumentIds);
     std::vector<S3ModelId> requiredModels() const;
+
 private:
     std::map<InstrumentId,PV> pvs(const Container& container) const override;
 

@@ -41,9 +41,9 @@ std::vector<VariantId> PricerBuilder::getRequestBatch(const Container& container
                 }
             }
         case State::PricerRequestsRequested:
-            state_ = State::AllRequestsDone;
+            state_ = State::Final;
             return {};
-        case State::AllRequestsDone:
+        case State::Final:
             assert(!"unexpected state for getRequestBatch() call");
             return {};
     }
@@ -51,7 +51,7 @@ std::vector<VariantId> PricerBuilder::getRequestBatch(const Container& container
 
 std::unique_ptr<Pricer> PricerBuilder::getObject(const Container&)
 {
-    assert(state_ == State::AllRequestsDone && "unexpected state for make() call");
+    assert(state_ == State::Final && "unexpected state for make() call");
     return std::move(pricer_);
 }
 

@@ -4,7 +4,7 @@
 
 class S3ModelBuilder : public Builder<S3ModelId> {
 public:
-    S3ModelBuilder(const S3ModelId& id);
+    explicit S3ModelBuilder(const S3ModelId& id);
 
 private:
     std::vector<VariantId> getRequestBatch(const Container&) override;

@@ -13,7 +13,9 @@ class IRPricer : public Pricer {
 public:
     IRPricer(const Container& container, const std::vector<InstrumentId>& instrumentIds);
     std::vector<InterestRateCurveId> requiredCurves() const;    
+
 private:
     std::map<InstrumentId,PV> pvs(const Container& container) const override;
+
     std::map<InstrumentId,std::unique_ptr<const IRUnitPricer>> unitPricers_;
 };

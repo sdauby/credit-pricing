@@ -20,7 +20,7 @@ private:
         Initial, 
         InstrumentsRequested, 
         PricerRequestsRequested, 
-        AllRequestsDone,
+        Final,
     };
     State state_ = State::Initial;
 };

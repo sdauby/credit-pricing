@@ -4,7 +4,7 @@
 
 class InterestRateCurveBuilder : public Builder<InterestRateCurveId> {
 public:
-    InterestRateCurveBuilder(const InterestRateCurveId& id);
+    explicit InterestRateCurveBuilder(const InterestRateCurveId& id);
 
 private:
     std::vector<VariantId> getRequestBatch(const Container&) override;

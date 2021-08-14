@@ -4,7 +4,7 @@
 
 class HazardRateCurveBuilder : public Builder<HazardRateCurveId> {
 public:
-    HazardRateCurveBuilder(const HazardRateCurveId& id);
+    explicit HazardRateCurveBuilder(const HazardRateCurveId& id);
 
 private:
     std::vector<VariantId> getRequestBatch(const Container&) override;
