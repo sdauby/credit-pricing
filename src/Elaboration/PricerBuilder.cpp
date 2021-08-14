@@ -17,21 +17,29 @@ std::vector<VariantId> PricerBuilder::getRequestBatch(const Container& container
     switch (state_) {
         case State::Initial:
             state_ = State::InstrumentsRequested;
-            return std::vector<VariantId>(id_.instruments.begin(), id_.instruments.end());
+            return std::vector<VariantId>(id_.instruments.cbegin(), id_.instruments.cend());
         case State::InstrumentsRequested:
-            switch (id_.kind) {
-                case PricerKind::General: 
-                    pricer_ = std::make_unique<GeneralPricer>(container,id_.instruments, config_);
-                    break;
-                case PricerKind::IR: 
-                    pricer_ = std::make_unique<IRPricer>(container,id_.instruments); 
-                    break;
-                case PricerKind::S3: 
-                    pricer_ = std::make_unique<S3Pricer>(container,id_.instruments); 
-                    break;
-            }
             state_ = State::PricerRequestsRequested;
-            return pricer_->requests();
+            switch (id_.kind) {
+                case PricerKind::General: {
+                    auto pricer = std::make_unique<GeneralPricer>(container,id_.instruments, config_);
+                    auto pricerIds = pricer->requiredPricers();
+                    pricer_ = std::move(pricer);
+                    return std::vector<VariantId>(pricerIds.cbegin(),pricerIds.cend());
+                }
+                case PricerKind::IR: {
+                    auto pricer = std::make_unique<IRPricer>(container,id_.instruments);
+                    auto curveIds = pricer->requiredCurves();
+                    pricer_ = std::move(pricer);
+                    return std::vector<VariantId>(curveIds.cbegin(),curveIds.cend());
+                }
+                case PricerKind::S3: {
+                    auto pricer = std::make_unique<S3Pricer>(container,id_.instruments); 
+                    auto modelIds = pricer->requiredModels();
+                    pricer_ = std::move(pricer);
+                    return std::vector<VariantId>(modelIds.cbegin(),modelIds.cend());
+                }
+            }
         case State::PricerRequestsRequested:
             state_ = State::AllRequestsDone;
             return {};

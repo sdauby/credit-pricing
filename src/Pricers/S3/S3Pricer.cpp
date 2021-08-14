@@ -13,7 +13,7 @@ namespace {
     class S3UnitPricerImpl : public S3UnitPricer {
     public:
         explicit S3UnitPricerImpl(const InstrumentType& instrument) : instrument_{instrument} {}
-        S3ModelId modelId() const override { return ::modelId(instrument_); };
+        S3ModelId requiredModel() const override { return ::modelId(instrument_); };
         double pv(const S3Model& model) const override { return ::pv(instrument_, model); }
     private:
         const InstrumentType& instrument_;
@@ -67,23 +67,19 @@ S3Pricer::S3Pricer(const Container& container, const std::vector<InstrumentId>& 
 {
     for (const auto& instrumentId : instrumentIds) {
         auto pricer = makeS3UnitPricer(*container.get(instrumentId));
-        s3ModelIds_.emplace(instrumentId,pricer->modelId());
+        s3ModelIds_.emplace(instrumentId,pricer->requiredModel());
         unitPricers_.emplace(instrumentId,std::move(pricer));
     }
     aggregateTenorStructures(s3ModelIds_);
 }
 
-std::vector<VariantId> S3Pricer::requests() const
+std::vector<S3ModelId> S3Pricer::requiredModels() const
 {
     std::set<S3ModelId> s3ModelIds;
     for (const auto& [instrumentId,s3ModelId] : s3ModelIds_)
         s3ModelIds.insert(s3ModelId);
-    
-    std::vector<VariantId> ids;
-    ids.reserve(s3ModelIds.size());
-    for (auto& s3ModelId : s3ModelIds)
-         ids.emplace_back(std::move(s3ModelId));
-    return ids;
+
+    return std::vector<S3ModelId>(s3ModelIds.cbegin(),s3ModelIds.cend());
 }
 
 std::map<InstrumentId,PV> S3Pricer::pvs(const Container& modelContainer) const 
