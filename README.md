@@ -96,13 +96,13 @@ There is also the `solve()` function, a very primitive root solver.
 
 The `InstrumentKind` enum class assigns an enumerator to every instrument type (`FixedCouponBond`, `FloatingCouponBond`, `Cds`, `IRSwap`).
 
-The `Instrument` interface is intended to be derived by concrete instrument types.
+The `Instrument` interface is derived by concrete instrument types.
 Its raison d'être is to enable the collection of heterogeneous instruments in a single container.
 The only useful thing one can do with an `Instrument` object is retrieve its `InstrumentKind`.
 Having the `InstrumentKind`, one can `static_cast` to the concrete type and access its data.
 
 `InstrumentImpl` is a class template parameterized by an `InstrumentKind` value and a `DataT` type.
-The `DataT` type parameter is intended to be a concrete type representing instrument data.
+The `DataT` type parameter is a concrete type representing instrument data.
 `InstrumentImpl` instances derive from the `Instrument` interface, and have a `DataT` data member, to
 which they give read-only access via a `data()` non-virtual member function.
 Finally, they provide a constructor which moves a `DataT` argument into the `DataT` data member.
@@ -153,29 +153,33 @@ the book.
 
 ### 3.4.1 Objects and Identifiers
 
-A container contains collections of objects of certain types. Each object in the container has an identifier.
-There is a correspondance between the object types and the identifier types:
+`Id` is the concept (in the C++20 sense) of object identifier.
 
-| `ObjectT`           | `IdT`                 | Example `IdT`
-| -------------       |-------------          | -----------
-| `Pricer`            | `PricerId`            | `Pricer{S3,[Instrument{0},Instrument{2}]}`
-| `Instrument`        | `InstrumentId`        | `Instrument{0}`
-| `HazardRateCurve`   | `HazardRateCurveId`   | `HazardRateCurve{USD,JPM}`
-| `InterestRateCurve` | `InterestRateCurveId` | `InterestRateCurve{EUR}`
-| `S3Model`           | `S3ModelId`           | `HazardRateCurve{USD,JPM}`
+The `Id` types are defined in the `Ids` folder. They are:
 
-The data of an `IdT` instance must allow us to uniquely identify the role of an object in business-wise meaningful terms.
+| `Id`                  | `ObjectType`        | Example
+|-------------          | -------------       | -----------
+| `PricerId`            | `Pricer`            | `Pricer{S3,[Instrument{0},Instrument{2}]}`
+| `InstrumentId`        | `Instrument`        | `Instrument{0}`
+| `HazardRateCurveId`   | `HazardRateCurve`   | `HazardRateCurve{USD,JPM}`
+| `InterestRateCurveId` | `InterestRateCurve` | `InterestRateCurve{EUR}`
+| `S3ModelId`           | `S3Model`           | `HazardRateCurve{USD,JPM}`
+
+An `Id` instance must allow us to uniquely identify the role of an object in business-wise meaningful terms.
 For example, the value `HazardRateCurveId{Currency::USD,Issuers::JPM}` identifies the hazard rate curve representing 
 the default risk of issuer JP Morgan in USD.
 
-`VariantId` is a `std::variant` whose alternatives are all of the `IdT` types listed above.
+`WithAllIdTypes` is a rather abstract construct (a template whose parameter is a template whose parameter is a type list)
+which defines the list of `Id` types (as in the above table) and is used to define types involving all of the `Id` types.
+
+For example, it is used to define `VariantId`, a `std::variant` whose alternatives are all of the `Id` types.
 
 ### 3.4.2 Container
 
-`Container` contains objects of the `ObjectT` types, keyed by values of the `IdT` types.
+`Container` contains objects of the `ObjectType` types, keyed by values of the `Id` types.
 It uses `std::unique_ptr` so it assumes sole ownership of the objects it contains.
 
-It provides member function templates `get()` and `set()`, parameterized by the `IdT` type.
+It provides member function templates `get()` and `set()`, parameterized by an `Id` type.
 
 The `get()` member function template returns a raw pointer. 
 This is standard for non-owning references which may be null. (Cf C++ Core Guidelines F.60.)
@@ -205,10 +209,9 @@ opens the possibility of safe and efficient multi-threading.
 ### 3.4.4 Flexibility
 
 `Container` is non-intrusive with respect to the types of the objects it may contain (e.g. it does not require them to inherit from a specific abstract base class).
+For example, the `S3Model` type is a standalone implementation of Schönbucher's specification, unpolluted by any framework requirement.
 So, we can easily integrate any object type in `Container`: instruments, models, static data representations,
 configurations, etc.
-For example, the `S3Model` type contains no more and no less than the implementation of Schönbucher's
-specification.
 
 Besides, as we have seen, we can easily generate scenarios on all of those data.
 For example, we can generate scenarios on instrument parameters just as easily as on market data.
@@ -259,9 +262,8 @@ in calibrated form, but depends on IR instrument prices if it is calibrated in t
 * Multi-step determination of the data requests of a given object, e.g. a pricer having initially only the instrument
 identifiers will have to first request the instrument objects and, after they are loaded and can be examined, request
 the model objets required to price the instruments.
-* Optimised grouping of data requests, i.e. data must be loaded in bulk, rather than piecemeal, as much as possible,
-in the interest of efficient communication with the data sources.
-* Customisable computation task, e.g. a pricing task or a calibration task.
+* Configurable grouping of data requests, e.g. if data should be loaded in bulk, rather than piecemeal, in the interest of efficient communication with the data sources.
+* Customisable computation task: different tasks require different Container contents, e.g. a pricing task may require calibrated models while a calibration task may require instrument prices.
 
 ### 3.5.3 Implementation
 
@@ -279,7 +281,9 @@ By calling `BuilderGeneralFactory`, one can create a `Builder` for a specific id
 
 A `Builder` is a state machine with a linear sequence of states. Each call to `getRequestBatch()` produces a batch
 of identifiers requested for building the object managed by the builder, and advances the builder to the next state.
-When `getRequestBatch()` produces an empty batch, one must call `getObject()` to retrieve the built object. Then
+The final state is reached when `getRequestBatch()` produces an empty batch.
+Then one must call `getObject()` to retrieve the built object.
+Then
 the `Builder` can be discarded.
 
 The elaboration process is configured via the `BuilderGeneralFactory`. E.g. the switch between loading IR curves
@@ -292,8 +296,8 @@ of `BuilderFactory<InterestRateCurveId>`.
 The following graph shows the steps of an example elaboration.
 
 Each node is labelled with 3 /-separated components:
-* the *inclusion ordinal* indicates the order in which objects are requested;
-* the *population ordinal* indicates the order in which the built objects are added to the container;
+* the *inclusion ordinal*, indicating the order in which objects are requested;
+* the *population ordinal*, indicating the order in which the built objects are added to the container;
 * the object identifier.
 
 Each edge from object *x* to object *y* and labelled with number *i* means: *"object x requested object y in its i-th request batch"*.
@@ -305,9 +309,7 @@ Each edge from object *x* to object *y* and labelled with number *i* means: *"ob
 ### 3.6.1 Pricer
 
 `Pricer` is an interface for objects which manage the pricing of a collection of instruments.
-The `requests()` pure virtual function returns the identifiers of the model objects required to price the instruments.
 The `pvs()` pure virtual function takes a `Container` reference and returns a map from `InstrumentId` to (pv,currency) pairs.
-The `Container` is expected to contain objects for all the identifiers returned by `requests()`.
 
 ### 3.6.2 S3Pricer
 
@@ -337,7 +339,7 @@ instruments.
 
 ### 3.6.3 IRPricer
 `IRPricer`is derived from `Pricer`. It is able to price fixed and floating bonds and IR swaps.
-It uses the InterestRateCurve model.
+It uses the `InterestRateCurve` model.
 
 `IRPricer` is architecturally similar to `S3Pricer`.
 
@@ -373,7 +375,7 @@ containers retaining sole ownership, e.g. Container.
 
 Read-only access to these objects is provided by:
 * the containers, in the form of constant reference return values
-(exceptionally in the form of constant pointer return values
+(sometimes in the form of constant pointer return values
 to express that a null value is possible),
 * constant reference arguments of functions,
 * constant references stored in classes, initialized in the class constructors from constant reference arguments.
@@ -382,16 +384,10 @@ In all those cases, the references must not outlive the owning containers.
 This is very easily achieved, without recourse to `shared_ptr`s.
 This approach is consistent with C++ Core Guidelines R.21, F.7, R.37.
 
-### 4.2 Maps
+### 4.2 `Id` types
 
-All the maps are ordered maps.
-They should be hashed maps for efficiency.
-
-### 4.3 `IdT` types
-
-`IdT` types are functionally fine as they are but not optimal for efficiency.
-In particular, `IdT` types involving free-store allocations (e.g. `S3ModelId`)
+`Id` types are functionally fine as they are but not optimal for efficiency.
+In particular, `Id` types involving free-store allocations (e.g. `S3ModelId`)
 are not ideal value-semantics types.
 This problem could be solved by representing the identifiers with an integer token
 mapping to the actual content of the identifier.
-
