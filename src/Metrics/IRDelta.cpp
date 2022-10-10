@@ -1,3 +1,5 @@
+#include <array>
+
 #include "Metrics/IRDelta.hpp"
 
 #include "Container/Container.hpp"
@@ -44,7 +46,7 @@ std::map<InstrumentId,Result> IRDelta::compute(const Container& container) const
 
     for (const auto& curveId : container.ids<InterestRateCurveId>()) {
         constexpr auto shiftSize = 1e-8;
-        constexpr auto shifts = std::array{+shiftSize,-shiftSize};
+        constexpr auto shifts = std::array<double,2>{+shiftSize,-shiftSize};
         constexpr auto scale = 1e-4;
         std::array<std::map<InstrumentId,PV>,2> pvs;
         for (auto i : {0,1}) {
